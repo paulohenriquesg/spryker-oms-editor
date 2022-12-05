@@ -500,14 +500,22 @@
         var mapNodeEventElement = [];
         var mapNodeTransitionElement = [];
 
+        let combinedEventsData = [];
+        let combinedStatesData = [];
+        let combinedTransitionsData = [];
+
         editor.on('nodeCreated', function (id) {
             // console.log("Node created " + id);
             let nodeData = editor.getNodeFromId(id);
             // console.log(nodeData);
             if (nodeData.name === 'state') {
+                combinedStatesData[nodeData.data.name]['nodeId'] = id;
+                combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
+                combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
                 mapNodeStateElement.push({ name: nodeData.data.name, id })
             }
             if (nodeData.name === 'event') {
+                combinedEventsData[nodeData.data.name]['nodeId'] = id;
                 mapNodeEventElement.push({ name: nodeData.data.name, id })
             }
             if (nodeData.name === 'transition') {
@@ -579,7 +587,6 @@
             let combinedTransitions = [];
 
             let xmls = document.getElementsByClassName('xml');
-            console.log(xmls);
             for (let index = 0; index < xmls.length; index++) {
                 const element = xmls[index].value;
                 const parsedElement = parser.parse(element);
@@ -608,15 +615,23 @@
                     "flag": (element['flag'] !== undefined) ? element['flag'] : '',
                     "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : false,
                     "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
+                    "nodeId": '',
+                    "childrenCount": 0,
                 };
                 // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                editor.addNode('state', 1, 1, (50 + 250 * index), (20), '', data, htmlState);
+                // editor.addNode('state', 1, 1, (50 + 250 * index), (20), '', data, htmlState);
+                combinedStatesData[element['@_name']] = data;
             }
             for (let index = 1; index < combinedStates.length; index++) {
                 // editor.addConnection(index, index + 1, 'output_1', 'input_1');
             }
 
+            let counter = 0;
+
+            let posX = 10;
+            let posY = 10;
             for (let index = 0; index < combinedTransitions.length; index++) {
+                let stayInLine = false;
                 const element = combinedTransitions[index];
                 let data = {
                     "event": element['event'],
@@ -624,9 +639,42 @@
                     "target": (element['target'] !== undefined) ? element['target'] : '',
                     "condition": (element['@_condition'] !== undefined) ? element['@_condition'] : '',
                     "happy": (element['@_happy'] !== undefined) ? element['@_happy'] : false,
+                    "nodeId": '',
                 };
                 // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
+                // editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
+
+                // handle missing parts of the available OMS
+                if (combinedStatesData[element['source']] === undefined) {
+                    console.log(element['source'] + ' not found');
+                    continue;
+                }
+                if (combinedStatesData[element['target']] === undefined) {
+                    console.log(element['target'] + ' not found');
+                    continue;
+                }
+
+
+                if (combinedStatesData[element['source']]['nodeId'] === '') {
+                    console.log(counter++);
+                    editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['source']], htmlState);
+                }
+
+                if (combinedStatesData[element['target']]['nodeId'] === '') {
+                    combinedStatesData[element['source']]['childrenCount'] += 1;
+                    
+                    posY = combinedStatesData[element['source']]['posY'] + 500;
+                    posX = combinedStatesData[element['source']]['posX'];
+                    if(combinedStatesData[element['source']]['childrenCount'] > 1){
+                        posX+= (400 * (combinedStatesData[element['source']]['childrenCount']-1));
+                    }
+
+                    editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
+                }
+
+                editor.addConnection(combinedStatesData[element['source']]['nodeId'], combinedStatesData[element['target']]['nodeId'], 'output_1', 'input_1');
+
+                combinedTransitionsData[element['event'] + '-' + element['source'] + '-' + element['target']] = data;
             }
             for (let index = 0; index < combinedEvents.length; index++) {
                 const element = combinedEvents[index];
@@ -637,10 +685,15 @@
                     "command": (element['@_command'] !== undefined) ? element['@_command'] : '',
                     "manual": (element['@_manual'] !== undefined) ? element['@_manual'] : '',
                     "timeoutProcessor": (element['@_timeoutProcessor'] !== undefined) ? element['@_timeoutProcessor'] : '',
+                    "nodeId": '',
                 };
                 // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
+                // editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
+                combinedEventsData[element['@_name']] = data;
             }
+            // console.log(combinedStatesData);
+            // console.log(combinedTransitionsData);
+            // console.log(combinedEventsData);
 
             for (let index = 0; index < combinedTransitions.length; index++) {
                 const element = combinedTransitions[index];
@@ -652,13 +705,13 @@
                 // console.log(source, target, event, transition);
 
                 // link transition to source state
-                editor.addConnection(source.id, transition.id, 'output_1', 'input_1');
+                // editor.addConnection(source.id, transition.id, 'output_1', 'input_1');
 
                 // link transition to event
-                editor.addConnection(transition.id, event.id, 'output_1', 'input_1');
+                // editor.addConnection(transition.id, event.id, 'output_1', 'input_1');
 
                 // link event to target state
-                editor.addConnection(event.id, target.id, 'output_1', 'input_1');
+                // editor.addConnection(event.id, target.id, 'output_1', 'input_1');
 
 
 
@@ -810,7 +863,7 @@
             process.appendChild(events);
 
             xml.appendChild(header)
-            console.log(process);
+            // console.log(process);
             xml.documentElement.appendChild(process);
             // xml.documentElement;
 
@@ -847,18 +900,18 @@
         })
 
         editor.on('connectionCreated', function (connection) {
-            console.log('Connection created');
-            console.log(connection);
-            let sourceNode = editor.getNodeFromId(connection.output_id);
-            let targetNode = editor.getNodeFromId(connection.input_id);
-            if (sourceNode.name === 'state' && targetNode.name === 'transition') {
-                editor.updateNodeDataFromId(connection.input_id, { source: sourceNode.data.name });
-            }
-            if (sourceNode.name === 'transition' && targetNode.name === 'event') {
-                editor.updateNodeDataFromId(connection.output_id, { event: targetNode.data.name });
-            }
+            // console.log('Connection created');
+            // console.log(connection);
+            // let sourceNode = editor.getNodeFromId(connection.output_id);
+            // let targetNode = editor.getNodeFromId(connection.input_id);
+            // if (sourceNode.name === 'state' && targetNode.name === 'transition') {
+            //     editor.updateNodeDataFromId(connection.input_id, { source: sourceNode.data.name });
+            // }
+            // if (sourceNode.name === 'transition' && targetNode.name === 'event') {
+            //     editor.updateNodeDataFromId(connection.output_id, { event: targetNode.data.name });
+            // }
 
-            console.log(sourceNode, targetNode);
+            // console.log(sourceNode, targetNode);
 
         })
 
@@ -873,6 +926,13 @@
 
         editor.on('nodeMoved', function (id) {
             console.log("Node moved " + id);
+            let nodeData = editor.getNodeFromId(id);
+            console.log(nodeData);
+            if (nodeData.name === 'state') {
+                combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
+                combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
+            }
+            console.log(nodeData.data);
         })
 
         editor.on('zoom', function (zoom) {
@@ -991,6 +1051,31 @@
                 document.getElementById('textareas').appendChild(textarea);
             }
         }
+
+
+
+
+        editor.curvature = 0;
+        editor.reroute_curvature_start_end = 0;
+        editor.reroute_curvature = 0;
+
+        // editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
+        //   var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
+        //   return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
+        // }
+
+        // editor.createCurvature = function (start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
+        //     if (end_pos_y > start_pos_y) {
+
+        //         var center_y = ((end_pos_y - start_pos_y) / 2) + start_pos_y;
+        //         return ' M ' + start_pos_x + ' ' + start_pos_y + ' L ' + start_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + end_pos_y;
+
+        //     } else {
+
+        //         // New curvature
+        //         return ' M ...';
+        //     }
+        // }
     </script>
 </body>
 
