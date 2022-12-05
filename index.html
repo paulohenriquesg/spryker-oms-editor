@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=720, initial-scale=1.0">
+    <title>OMS Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.0.12/fxparser.min.js"
+        integrity="sha512-HGrrIN/LyGNpsITQqS0Oz+0rCFt/+2/eymCPchz/Pvx8JofaxmLfoEJNIix9R1iHEnScT+HSt8WBifDINQu89g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+        integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
+        integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+
+    <style>
+        :root {
+            --border-color: #cacaca;
+            --background-color: #ffffff;
+
+            --background-box-title: #f7f7f7;
+        }
+
+        html,
+        body {
+            margin: 0px;
+            padding: 0px;
+            width: 100vw;
+            height: 100vh;
+            /* overflow: hidden; */
+            font-family: 'Roboto', sans-serif;
+        }
+
+        header {
+            height: 66px;
+            border-bottom: 1px solid var(--border-color);
+            padding-left: 20px;
+        }
+
+        header h2 {
+            margin: 0px;
+            line-height: 66px;
+        }
+
+        header a {
+            color: black;
+        }
+
+        .them-edit-link {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+            color: black;
+            font-size: 40px;
+        }
+
+        .them-edit-link a {
+            text-decoration: none;
+        }
+
+        .github-link {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: black;
+        }
+
+        .wrapper {
+            width: 100%;
+            height: calc(100vh - 67px);
+            display: flex;
+        }
+
+        .col {
+            overflow: auto;
+            width: 300px;
+            height: 100%;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .drag-drawflow {
+            line-height: 50px;
+            border-bottom: 1px solid var(--border-color);
+            padding-left: 20px;
+            cursor: move;
+            user-select: none;
+        }
+
+        .menu {
+            position: absolute;
+            height: 40px;
+            display: block;
+            background: white;
+            width: 100%;
+        }
+
+        .menu ul {
+            padding: 0px;
+            margin: 0px;
+            line-height: 40px;
+        }
+
+        .menu ul li {
+            display: inline-block;
+            margin-left: 10px;
+            border-right: 1px solid var(--border-color);
+            padding-right: 10px;
+            line-height: 40px;
+            cursor: pointer;
+        }
+
+        .menu ul li.selected {
+            font-weight: bold;
+        }
+
+        .btn-export {
+            float: right;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-weight: bold;
+            border: 1px solid #0e5ba3;
+            background: #4ea9ff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .btn-clear {
+            float: right;
+            position: absolute;
+            top: 10px;
+            right: 85px;
+            color: white;
+            font-weight: bold;
+            border: 1px solid #96015b;
+            background: #e3195a;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        .swal-wide {
+            width: 80% !important;
+        }
+
+        .btn-lock {
+            float: right;
+            position: absolute;
+            bottom: 10px;
+            right: 140px;
+            display: flex;
+            font-size: 24px;
+            color: white;
+            padding: 5px 10px;
+            background: #555555;
+            border-radius: 4px;
+            border-right: 1px solid var(--border-color);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .bar-zoom {
+            float: right;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            font-size: 24px;
+            color: white;
+            padding: 5px 10px;
+            background: #555555;
+            border-radius: 4px;
+            border-right: 1px solid var(--border-color);
+            z-index: 5;
+        }
+
+        .bar-zoom svg {
+            cursor: pointer;
+            padding-left: 10px;
+        }
+
+        .bar-zoom svg:nth-child(1) {
+            padding-left: 0px;
+        }
+
+        #drawflow {
+            position: relative;
+            width: calc(100vw - 301px);
+            height: calc(100% - 50px);
+            top: 40px;
+            background: var(--background-color);
+            background-size: 25px 25px;
+            background-image:
+                linear-gradient(to right, #f1f1f1 1px, transparent 1px),
+                linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
+        }
+
+        @media only screen and (max-width: 768px) {
+            .col {
+                width: 50px;
+            }
+
+            .col .drag-drawflow span {
+                display: none;
+            }
+
+            #drawflow {
+                width: calc(100vw - 51px);
+            }
+        }
+
+
+
+        /* Editing Drawflow */
+
+        .drawflow .drawflow-node {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            -webkit-box-shadow: 0 2px 15px 2px var(--border-color);
+            box-shadow: 0 2px 15px 2px var(--border-color);
+            padding: 0px;
+            width: 200px;
+        }
+
+        .drawflow .drawflow-node.selected {
+            background: white;
+            border: 1px solid #4ea9ff;
+            -webkit-box-shadow: 0 2px 20px 2px #4ea9ff;
+            box-shadow: 0 2px 20px 2px #4ea9ff;
+        }
+
+        .drawflow .drawflow-node.selected .title-box {
+            color: #22598c;
+            /*border-bottom: 1px solid #4ea9ff;*/
+        }
+
+        .drawflow .connection .main-path {
+            stroke: #4ea9ff;
+            stroke-width: 3px;
+        }
+
+        .drawflow .drawflow-node .input,
+        .drawflow .drawflow-node .output {
+            height: 15px;
+            width: 15px;
+            border: 2px solid var(--border-color);
+        }
+
+        .drawflow .drawflow-node .input:hover,
+        .drawflow .drawflow-node .output:hover {
+            background: #4ea9ff;
+        }
+
+        .drawflow .drawflow-node .output {
+            right: 10px;
+        }
+
+        .drawflow .drawflow-node .input {
+            left: -10px;
+            background: white;
+        }
+
+        .drawflow>.drawflow-delete {
+            border: 2px solid #43b993;
+            background: white;
+            color: #43b993;
+            -webkit-box-shadow: 0 2px 20px 2px #43b993;
+            box-shadow: 0 2px 20px 2px #43b993;
+        }
+
+        .drawflow-delete {
+            border: 2px solid #4ea9ff;
+            background: white;
+            color: #4ea9ff;
+            -webkit-box-shadow: 0 2px 20px 2px #4ea9ff;
+            box-shadow: 0 2px 20px 2px #4ea9ff;
+        }
+
+        .drawflow-node .title-box {
+            height: 50px;
+            line-height: 50px;
+            background: var(--background-box-title);
+            border-bottom: 1px solid #e9e9e9;
+            border-radius: 4px 4px 0px 0px;
+            padding-left: 10px;
+        }
+
+        .drawflow .title-box svg {
+            position: initial;
+        }
+
+        .drawflow-node .box {
+            padding: 10px 20px 20px 20px;
+            font-size: 14px;
+            color: #555555;
+
+        }
+
+        .drawflow-node .box p {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .drawflow-node.welcome {
+            width: 250px;
+        }
+
+        .drawflow-node.slack .title-box {
+            border-radius: 4px;
+        }
+
+        .drawflow-node input,
+        .drawflow-node select,
+        .drawflow-node textarea {
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            height: 30px;
+            line-height: 30px;
+            font-size: 16px;
+            width: 158px;
+            color: #555555;
+        }
+
+        .drawflow-node textarea {
+            height: 100px;
+        }
+
+
+        .drawflow-node.personalized {
+            background: red;
+            height: 200px;
+            text-align: center;
+            color: white;
+        }
+
+        .drawflow-node.personalized .input {
+            background: yellow;
+        }
+
+        .drawflow-node.personalized .output {
+            background: green;
+        }
+
+        .drawflow-node.personalized.selected {
+            background: blue;
+        }
+
+        .drawflow .connection .point {
+            stroke: var(--border-color);
+            stroke-width: 2;
+            fill: white;
+
+        }
+
+        .drawflow .connection .point.selected,
+        .drawflow .connection .point:hover {
+            fill: #4ea9ff;
+        }
+
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 7;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.7);
+
+        }
+
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 15% auto;
+            /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            /* Could be more or less, depending on screen size */
+        }
+
+        /* The Close Button */
+        .modal .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        @media only screen and (max-width: 768px) {
+            .modal-content {
+                width: 80%;
+            }
+        }
+
+        .happy {
+            background-color: #ebf2eb;
+        }
+
+        .event {
+            background-color: #ecf0f5;
+        }
+
+        .transition {
+            background-color: #FFF4BD;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>OMS Converter</h1>
+    <button onclick="process()">Process</button><br>
+    <textarea name="xml" class="xml" cols="100" rows="20">
+        <?xml version="1.0"?>
+        <statemachine
+                xmlns="spryker:oms-01"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd">
+        
+            <process name="DummyPayment01" main="true">
+                <subprocesses>
+                    <process>DummyRefund</process>
+                    <process>DummyReturn</process>
+                    <process>CreateGiftCard</process>
+                    <process>DummyInvoice</process>
+                </subprocesses>
+        
+                <states>
+                    <state name="new" display="oms.state.new">
+                        <flag>cancellable</flag>
+                    </state>
+                    <state name="payment pending" reserved="true" display="oms.state.payment-pending">
+                        <flag>cancellable</flag>
+                    </state>
+                    <state name="invalid" display="oms.state.invalid">
+                        <flag>exclude from customer</flag>
+                    </state>
+                    <state name="cancelled" display="oms.state.canceled"/>
+                    <state name="paid" reserved="true" display="oms.state.paid">
+                        <flag>cancellable</flag>
+                    </state>
+                    <state name="waiting" reserved="true" display="oms.state.waiting"/>
+                    <state name="exported" reserved="true" display="oms.state.exported"/>
+                    <state name="confirmed" reserved="true" display="oms.state.confirmed">
+                        <flag>cancellable</flag>
+                    </state>
+                    <state name="shipped" reserved="true" display="oms.state.shipped"/>
+                    <state name="delivered" display="oms.state.delivered"/>
+                    <state name="closed" display="oms.state.closed"/>
+                </states>
+        
+                <transitions>
+                    <transition happy="true" condition="DummyPayment/IsAuthorized">
+                        <source>new</source>
+                        <target>payment pending</target>
+                        <event>authorize</event>
+                    </transition>
+        
+                    <transition>
+                        <source>new</source>
+                        <target>invalid</target>
+                        <event>authorize</event>
+                    </transition>
+        
+                    <transition>
+                        <source>new</source>
+                        <target>cancelled</target>
+                        <event>cancel</event>
+                    </transition>
+        
+                    <transition happy="true" condition="DummyPayment/IsPayed">
+                        <source>payment pending</source>
+                        <target>paid</target>
+                        <event>pay</event>
+                    </transition>
+        
+                    <transition>
+                        <source>payment pending</source>
+                        <target>cancelled</target>
+                        <event>pay</event>
+                    </transition>
+        
+                    <transition>
+                        <source>payment pending</source>
+                        <target>cancelled</target>
+                        <event>cancel</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>paid</source>
+                        <target>confirmed</target>
+                        <event>confirm</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>confirmed</source>
+                        <target>waiting</target>
+                        <event>skip timeout</event>
+                    </transition>
+        
+                    <transition>
+                        <source>confirmed</source>
+                        <target>cancelled</target>
+                        <event>cancel</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>waiting</source>
+                        <target>exported</target>
+                        <event>check giftcard purchase</event>
+                    </transition>
+        
+                    <transition happy="true" condition="GiftCard/IsGiftCard">
+                        <source>waiting</source>
+                        <target>gift card purchased</target>
+                        <event>check giftcard purchase</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>gift card shipped</source>
+                        <target>delivered</target>
+                        <event>complete gift card creation</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>exported</source>
+                        <target>shipped</target>
+                        <event>ship</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>shipped</source>
+                        <target>delivered</target>
+                        <event>stock-update</event>
+                    </transition>
+        
+                    <transition happy="true">
+                        <source>delivered</source>
+                        <target>closed</target>
+                        <event>close</event>
+                    </transition>
+        
+                </transitions>
+        
+                <events>
+                    <event name="authorize" timeout="1 second"/>
+                    <event name="pay" manual="true" timeout="1 hour" timeoutProcessor="OmsTimeout/Initiation" command="DummyPayment/Pay"/>
+                    <event name="confirm" onEnter="true" manual="true" command="Oms/SendOrderConfirmation"/>
+                    <event name="skip timeout" manual="true" timeout="30 minute"/>
+                    <event name="cancel" manual="true"/>
+                    <event name="export" onEnter="true" manual="true" command="Oms/SendOrderShipped"/>
+                    <event name="ship" manual="true" command="Oms/SendOrderShipped"/>
+                    <event name="stock-update" manual="true"/>
+                    <event name="close" manual="true" timeout="1 hour"/>
+                </events>
+            </process>
+        
+            <process name="DummyRefund" file="DummySubprocess/DummyRefund01.xml"/>
+            <process name="DummyReturn" file="DummySubprocess/DummyReturn01.xml"/>
+            <process name="CreateGiftCard" file="GiftCardSubprocess/CreateGiftCard01.xml"/>
+            <process name="DummyInvoice" file="DummySubprocess/DummyInvoice01.xml"/>
+        
+        </statemachine>
+        
+    </textarea>
+    <textarea name="xml" class="xml" cols="100" rows="20">
+        <?xml version="1.0"?>
+<statemachine
+    xmlns="spryker:oms-01"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd">
+
+    <process name="DummyInvoice">
+        <states>
+            <state name="invoice generated"/>
+        </states>
+
+        <transitions>
+            <transition>
+                <source>confirmed</source>
+                <target>invoice generated</target>
+                <event>invoice-generate</event>
+            </transition>
+            <transition>
+                <source>invoice generated</source>
+                <target>waiting</target>
+                <event>invoice-generated</event>
+            </transition>
+        </transitions>
+
+        <events>
+            <event name="invoice-generate" manual="true" command="Invoice/Generate"/>
+            <event name="invoice-generated" onEnter="true"/>
+        </events>
+    </process>
+
+</statemachine>
+
+    </textarea>
+    <textarea name="xml" class="xml" cols="100" rows="20">
+        <?xml version="1.0"?>
+<statemachine
+    xmlns="spryker:oms-01"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd">
+    <!-- Used as example XML for OMS implementation -->
+
+    <process name="DummyRefund">
+        <states>
+            <state name="refunded" display="oms.state.refunded"/>
+        </states>
+
+        <transitions>
+            <transition>
+                <source>delivered</source>
+                <target>refunded</target>
+                <event>refund</event>
+            </transition>
+
+            <transition>
+                <source>returned</source>
+                <target>refunded</target>
+                <event>refund</event>
+            </transition>
+        </transitions>
+
+        <events>
+            <event name="refund" manual="true" command="DummyPayment/Refund"/>
+        </events>
+    </process>
+
+</statemachine>
+
+    </textarea>
+    <textarea name="xml" class="xml" cols="100" rows="20">
+        <?xml version="1.0"?>
+<statemachine
+    xmlns="spryker:oms-01"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd">
+    <!-- Used as example XML for OMS implementation -->
+
+    <process name="DummyReturn">
+        <states>
+            <state name="waiting for return" display="oms.state.waiting-for-return"/>
+            <state name="returned" display="oms.state.returned"/>
+            <state name="return canceled" display="oms.state.return-canceled"/>
+            <state name="shipped to customer" display="oms.state.shipped-to-customer"/>
+        </states>
+
+        <transitions>
+            <transition>
+                <source>shipped</source>
+                <target>waiting for return</target>
+                <event>start-return</event>
+            </transition>
+
+            <transition>
+                <source>delivered</source>
+                <target>waiting for return</target>
+                <event>start-return</event>
+            </transition>
+
+            <transition>
+                <source>waiting for return</source>
+                <target>returned</target>
+                <event>execute-return</event>
+            </transition>
+
+            <transition>
+                <source>waiting for return</source>
+                <target>return canceled</target>
+                <event>cancel-return</event>
+            </transition>
+
+            <transition>
+                <source>return canceled</source>
+                <target>shipped to customer</target>
+                <event>ship-return</event>
+            </transition>
+
+            <transition>
+                <source>shipped to customer</source>
+                <target>delivered</target>
+                <event>delivery-return</event>
+            </transition>
+        </transitions>
+
+        <events>
+            <event name="start-return" command="Return/StartReturn"/>
+            <event name="execute-return" manual="true"/>
+            <event name="cancel-return" manual="true"/>
+            <event name="ship-return" manual="true"/>
+            <event name="delivery-return" manual="true"/>
+        </events>
+    </process>
+
+</statemachine>
+
+    </textarea>
+    <textarea name="xml" class="xml" cols="100" rows="20">
+        <?xml version="1.0"?>
+<statemachine
+        xmlns="spryker:oms-01"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd">
+
+    <process name="CreateGiftCard">
+        <states>
+            <state name="gift card purchased" display="oms.state.gift-card-purchased"/>
+            <state name="gift card created" display="oms.state.gift-card-created"/>
+            <state name="gift card shipped" display="oms.state.gift-card-shipped"/>
+        </states>
+
+        <transitions>
+            <transition happy="true">
+                <source>gift card purchased</source>
+                <target>gift card created</target>
+                <event>create giftcard</event>
+            </transition>
+
+            <transition happy="true">
+                <source>gift card created</source>
+                <target>gift card shipped</target>
+                <event>ship giftcard</event>
+            </transition>
+
+        </transitions>
+
+        <events>
+            <event name="check giftcard purchase" onEnter="true"/>
+            <event name="create giftcard" onEnter="true" command="GiftCard/CreateGiftCard" />
+            <event name="ship giftcard" onEnter="true" command="GiftCardMailConnector/ShipGiftCard" />
+            <event name="complete gift card creation" onEnter="true" />
+        </events>
+    </process>
+</statemachine>
+
+    </textarea>
+
+    <hr>
+    OMS Process name: <input type="text" name="processName">
+    <button onclick="exportGraph()">Export</button><br>
+    <textarea name="xml" id="export" cols="100" rows="20"></textarea>
+    <textarea name="xml" id="exportXml" cols="100" rows="20"></textarea>
+    <hr>
+
+
+    <div class="wrapper">
+        <div class="col">
+            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="state">
+                <i class="fa fa-cogs"></i><span> State</span>
+            </div>
+            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="transition">
+                <i class="fa fa-exchange-alt"></i><span> Transition</span>
+            </div>
+            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="event">
+                <i class="fa fa-bolt"></i><span> Event</span>
+            </div>
+        </div>
+        <div class="col-right">
+            <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            <!--  style="width: 5000px;height: 5000px;" -->
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+        var id = document.getElementById("drawflow");
+        const editor = new Drawflow(id);
+
+        editor.reroute = true;
+        editor.editor_mode = 'edit'; // Default
+        editor.start();
+
+        var mapNodeStateElement = [];
+        var mapNodeEventElement = [];
+        var mapNodeTransitionElement = [];
+
+        editor.on('nodeCreated', function (id) {
+            // console.log("Node created " + id);
+            let nodeData = editor.getNodeFromId(id);
+            // console.log(nodeData);
+            if (nodeData.name === 'state') {
+                mapNodeStateElement.push({ name: nodeData.data.name, id })
+            }
+            if (nodeData.name === 'event') {
+                mapNodeEventElement.push({ name: nodeData.data.name, id })
+            }
+            if (nodeData.name === 'transition') {
+                let key = `${nodeData.data.event}-${nodeData.data.source}-${nodeData.data.target}`;
+                mapNodeTransitionElement.push({ name: key, id })
+            }
+        })
+
+
+        var htmlState = `<div>
+            <div class="title-box"><i class="fa fa-cogs"></i> State</div>
+            <div class="box happy" >
+                <p>Name</p>
+                <input type="text" df-name>
+                <p>Reserved</p>
+                <input type="text" df-reserved>
+                <p>Flag</p>
+                <input type="text" df-flag>
+                <p>Display</p>
+                <input type="text" df-display>
+            </div>
+          </div>`;
+
+        var htmlTransition = `<div>
+            <div class="title-box"><i class="fa fa-exchange-alt"></i> Transition</div>
+            <div class="box transition" >
+                <p>Event</p>
+                <input type="text" df-event>
+                <p>Source</p>
+                <input type="text" df-source>
+                <p>Target</p>
+                <input type="text" df-target>
+                <p>Condition</p>
+                <input type="text" df-condition>
+                <p>Happy</p>
+                <input type="text" df-happy>
+            </div>
+          </div>`;
+
+        var htmlEvent = `<div>
+            <div class="title-box"><i class="fa fa-bolt"></i> Event</div>
+            <div class="box event" >
+                <p>Name</p>
+                <input type="text" df-name>
+                <p>Command</p>
+                <input type="text" df-command>
+                <p>onEnter</p>
+                <input type="text" df-onEnter>
+                <p>Timeout</p>
+                <input type="text" df-timeout>
+                <p>Timeout Processor</p>
+                <input type="text" df-timeoutProcessor>
+                <p>Manual</p>
+                <input type="text" df-manual>
+            </div>
+          </div>`;
+
+        function process() {
+            const options = {
+                ignoreAttributes: false,
+                parseAttributeValue: true,
+                allowBooleanAttributes: true
+            };
+
+            const parser = new XMLParser(options);
+
+            let combinedEvents = [];
+            let combinedStates = [];
+            let combinedTransitions = [];
+
+            let xmls = document.getElementsByClassName('xml');
+            for (let index = 0; index < xmls.length; index++) {
+                const element = xmls[index].value;
+                const parsedElement = parser.parse(element);
+                // console.log(parsedElement);
+
+                let process = parsedElement.statemachine.process;
+
+                // handles main process
+                if (parsedElement.statemachine.process.length !== undefined) {
+                    process = parsedElement.statemachine.process[0];
+                    document.getElementsByName('processName')[0].value = process['@_name'];
+                }
+
+                combinedEvents = combinedEvents.concat(process.events.event);
+                combinedStates = combinedStates.concat(process.states.state);
+                combinedTransitions = combinedTransitions.concat(process.transitions.transition);
+            }
+            // console.log(xmls);
+            // console.log(combinedEvents, combinedStates, combinedTransitions);
+
+            for (let index = 0; index < combinedStates.length; index++) {
+                const element = combinedStates[index];
+                let data = {
+                    "name": element['@_name'],
+                    "color": (element['@_reserved'] !== undefined && element['@_reserved'] === true) ? '#ebf2eb' : '#ffffff',
+                    "flag": (element['flag'] !== undefined) ? element['flag'] : '',
+                    "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : false,
+                    "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
+                };
+                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+                editor.addNode('state', 1, 1, (50 + 250 * index), (20), '', data, htmlState);
+            }
+            for (let index = 1; index < combinedStates.length; index++) {
+                // editor.addConnection(index, index + 1, 'output_1', 'input_1');
+            }
+
+            for (let index = 0; index < combinedTransitions.length; index++) {
+                const element = combinedTransitions[index];
+                let data = {
+                    "event": element['event'],
+                    "source": (element['source'] !== undefined) ? element['source'] : '',
+                    "target": (element['target'] !== undefined) ? element['target'] : '',
+                    "condition": (element['@_condition'] !== undefined) ? element['@_condition'] : '',
+                    "happy": (element['@_happy'] !== undefined) ? element['@_happy'] : false,
+                };
+                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+                editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
+            }
+            for (let index = 0; index < combinedEvents.length; index++) {
+                const element = combinedEvents[index];
+                let data = {
+                    "name": element['@_name'],
+                    "timeout": (element['@_timeout'] !== undefined) ? element['@_timeout'] : '',
+                    "onEnter": (element['@_onEnter'] !== undefined) ? element['@_onEnter'] : '',
+                    "command": (element['@_command'] !== undefined) ? element['@_command'] : '',
+                    "manual": (element['@_manual'] !== undefined) ? element['@_manual'] : '',
+                    "timeoutProcessor": (element['@_timeoutProcessor'] !== undefined) ? element['@_timeoutProcessor'] : '',
+                };
+                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+                editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
+            }
+
+            for (let index = 0; index < combinedTransitions.length; index++) {
+                const element = combinedTransitions[index];
+                // console.log(element);
+                let source = mapNodeStateElement.find(o => o.name === element['source']);
+                let target = mapNodeStateElement.find(o => o.name === element['target']);
+                let event = mapNodeEventElement.find(o => o.name === element['event']);
+                let transition = mapNodeTransitionElement.find(o => o.name === element['event'] + '-' + element['source'] + '-' + element['target']);
+                // console.log(source, target, event, transition);
+
+                // link transition to source state
+                editor.addConnection(source.id, transition.id, 'output_1', 'input_1');
+
+                // link transition to event
+                editor.addConnection(transition.id, event.id, 'output_1', 'input_1');
+
+                // link event to target state
+                editor.addConnection(event.id, target.id, 'output_1', 'input_1');
+
+
+
+
+
+
+
+                if (source !== undefined && target !== undefined) {
+                    // editor.addConnection(source.id, target.id, 'output_1', 'input_1');
+                }
+                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+                // editor.addNode('event', 1, 1, (50 + 250*index), (350), '', data, htmlTransition);
+            }
+
+
+
+
+
+
+
+
+            // console.log(mapNodeStateElement);
+            // console.log(mapNodeEventElement);
+        }
+
+        function exportGraph() {
+            var exportdata = editor.export();
+            // console.log(exportdata.drawflow.Home.data[1]);
+
+
+            let data = exportdata.drawflow.Home.data;
+            for (const [key, value] of Object.entries(data)) {
+                // console.log(`${key}`, value);
+
+            }
+
+            document.getElementById('export').value = JSON.stringify(exportdata, null, 4);
+
+            // let baseXml = '<?xml version="1.0"?><statemachine xmlns="spryker:oms-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd"></statemachine';
+            // let xml = new DOMParser().parseFromString(baseXml, "application/xml");
+
+            let xml = document.implementation.createDocument("", "", null);
+            let header = xml.createElementNS("spryker:oms-01", "statemachine");
+            header.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+            header.setAttribute('xsi:schemaLocation', 'spryker:oms-01 http://static.spryker.com/oms-01.xsd');
+
+
+            let process = xml.createElement("process");
+            // console.log(process);
+            process.setAttribute('name', document.getElementsByName('processName')[0].value);
+            process.setAttribute('main', 'true');
+
+            let states = xml.createElement("states");
+            let transitions = xml.createElement("transitions");
+            let events = xml.createElement("events");
+
+            let combinedEvents = [];
+            let combinedStates = [];
+            let combinedTransitions = [];
+
+            for (const [key, value] of Object.entries(data)) {
+                // console.log(`${key}`, value);
+                if (value.name === 'state') {
+                    combinedStates.push(value);
+
+                    let newState = xml.createElement("state");
+                    newState.setAttribute('name', value.data.name ?? '');
+                    newState.setAttribute('display', value.data.display ?? '');
+
+                    if (value.data.reserved === true) {
+                        newState.setAttribute('reserved', true);
+                    }
+
+                    if (value.data.flag !== undefined && value.data.flag !== "") {
+                        let flag = xml.createElement('flag');
+                        let flagText = xml.createTextNode(value.data.flag);
+
+                        flag.appendChild(flagText);
+                        newState.appendChild(flag);
+                    }
+
+
+                    states.appendChild(newState);
+                }
+                if (value.name === 'transition') {
+                    combinedTransitions.push(value);
+
+                    let newTransition = xml.createElement("transition");
+
+                    if (value.data.happy === true) {
+                        newTransition.setAttribute('happy', true);
+                    }
+
+                    if (value.data.condition !== undefined && value.data.condition !== "") {
+                        newTransition.setAttribute('condition', value.data.condition);
+                    }
+
+                    let source = xml.createElement('source')
+                    let sourceText = xml.createTextNode(value.data.source ?? '');
+                    source.appendChild(sourceText);
+                    newTransition.appendChild(source);
+
+                    let target = xml.createElement('target')
+                    let targetText = xml.createTextNode(value.data.target ?? '');
+                    target.appendChild(targetText);
+                    newTransition.appendChild(target);
+
+                    let event = xml.createElement('event')
+                    let eventText = xml.createTextNode(value.data.event ?? '');
+                    event.appendChild(eventText);
+                    newTransition.appendChild(event);
+
+                    transitions.appendChild(newTransition);
+                }
+                if (value.name === 'event') {
+                    combinedEvents.push(value);
+
+                    let newEvent = xml.createElement("event");
+                    newEvent.setAttribute('name', value.data.name ?? '');
+
+                    if (value.data.manual === true) {
+                        newEvent.setAttribute('manual', true);
+                    }
+
+                    if (value.data.command !== undefined && value.data.command !== "") {
+                        newEvent.setAttribute('command', value.data.command);
+                    }
+
+                    if (value.data.timeout !== undefined && value.data.timeout !== "") {
+                        newEvent.setAttribute('timeout', value.data.timeout);
+                    }
+
+                    if (value.data.timeoutProcessor !== undefined && value.data.timeoutProcessor !== "") {
+                        newEvent.setAttribute('timeoutProcessor', value.data.timeoutProcessor);
+                    }
+
+                    if (value.data.onEnter === true) {
+                        newEvent.setAttribute('onEnter', true);
+                    }
+
+
+                    events.appendChild(newEvent);
+                }
+            }
+
+            // let processTag = xml.getElementsByTagName('process')[]
+            process.appendChild(states);
+            process.appendChild(transitions);
+            process.appendChild(events);
+
+            xml.appendChild(header)
+            console.log(process);
+            xml.documentElement.appendChild(process);
+            // xml.documentElement;
+
+            document.getElementById('exportXml').value = new XMLSerializer().serializeToString(xml);;
+
+        }
+
+
+
+
+
+
+
+        // EVENTS
+        // Events!
+        editor.on('nodeCreated', function (id) {
+            console.log("Node created " + id);
+        })
+
+        editor.on('nodeRemoved', function (id) {
+            console.log("Node removed " + id);
+        })
+
+        editor.on('nodeSelected', function (id) {
+            console.log("Node selected " + id);
+        })
+
+        editor.on('moduleCreated', function (name) {
+            console.log("Module Created " + name);
+        })
+
+        editor.on('moduleChanged', function (name) {
+            console.log("Module Changed " + name);
+        })
+
+        editor.on('connectionCreated', function (connection) {
+            console.log('Connection created');
+            console.log(connection);
+            let sourceNode = editor.getNodeFromId(connection.output_id);
+            let targetNode = editor.getNodeFromId(connection.input_id);
+            if(sourceNode.name === 'state' && targetNode.name === 'transition'){
+                editor.updateNodeDataFromId(connection.input_id,{ source: sourceNode.data.name });
+            }
+            if(sourceNode.name === 'transition' && targetNode.name === 'event'){
+                editor.updateNodeDataFromId(connection.output_id,{ event: targetNode.data.name });
+            }
+
+            console.log(sourceNode, targetNode);
+
+        })
+
+        editor.on('connectionRemoved', function (connection) {
+            console.log('Connection removed');
+            console.log(connection);
+        })
+
+        editor.on('mouseMove', function (position) {
+            // console.log('Position mouse x:' + position.x + ' y:' + position.y);
+        })
+
+        editor.on('nodeMoved', function (id) {
+            console.log("Node moved " + id);
+        })
+
+        editor.on('zoom', function (zoom) {
+            console.log('Zoom level ' + zoom);
+        })
+
+        editor.on('translate', function (position) {
+            console.log('Translate x:' + position.x + ' y:' + position.y);
+        })
+
+        editor.on('addReroute', function (id) {
+            console.log("Reroute added " + id);
+        })
+
+        editor.on('removeReroute', function (id) {
+            console.log("Reroute removed " + id);
+        })
+
+        /* DRAG EVENT */
+
+        /* Mouse and Touch Actions */
+
+        var elements = document.getElementsByClassName('drag-drawflow');
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].addEventListener('touchend', drop, false);
+            elements[i].addEventListener('touchmove', positionMobile, false);
+            elements[i].addEventListener('touchstart', drag, false);
+        }
+
+        var mobile_item_selec = '';
+        var mobile_last_move = null;
+        function positionMobile(ev) {
+            mobile_last_move = ev;
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            if (ev.type === "touchstart") {
+                mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+            } else {
+                ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+            }
+        }
+
+        function drop(ev) {
+            if (ev.type === "touchend") {
+                var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+                if (parentdrawflow != null) {
+                    addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
+                }
+                mobile_item_selec = '';
+            } else {
+                ev.preventDefault();
+                var data = ev.dataTransfer.getData("node");
+                addNodeToDrawFlow(data, ev.clientX, ev.clientY);
+            }
+
+        }
+
+        function addNodeToDrawFlow(name, pos_x, pos_y) {
+            if (editor.editor_mode === 'fixed') {
+                return false;
+            }
+            pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
+            pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
+
+
+            switch (name) {
+                case 'state':
+                    editor.addNode('state', 1, 1, pos_x, pos_y, '', {}, htmlState);
+                    break;
+                case 'transition':
+                    editor.addNode('transition', 1, 1, pos_x, pos_y, '', {}, htmlTransition);
+                    break;
+                case 'event':
+                    editor.addNode('event', 1, 1, pos_x, pos_y, '', {}, htmlEvent);
+                    break;
+
+
+                default:
+            }
+        }
+    </script>
+</body>
+
+</html>
