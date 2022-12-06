@@ -492,7 +492,7 @@
         var id = document.getElementById("drawflow");
         const editor = new Drawflow(id);
 
-        editor.reroute = true;
+        // editor.reroute = true;
         editor.editor_mode = 'edit'; // Default
         editor.start();
 
@@ -662,11 +662,11 @@
 
                 if (combinedStatesData[element['target']]['nodeId'] === '') {
                     combinedStatesData[element['source']]['childrenCount'] += 1;
-                    
+
                     posY = combinedStatesData[element['source']]['posY'] + 500;
                     posX = combinedStatesData[element['source']]['posX'];
-                    if(combinedStatesData[element['source']]['childrenCount'] > 1){
-                        posX+= (400 * (combinedStatesData[element['source']]['childrenCount']-1));
+                    if (combinedStatesData[element['source']]['childrenCount'] > 1) {
+                        posX += (400 * (combinedStatesData[element['source']]['childrenCount'] - 1));
                     }
 
                     editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
@@ -900,8 +900,8 @@
         })
 
         editor.on('connectionCreated', function (connection) {
-            // console.log('Connection created');
-            // console.log(connection);
+            console.log('Connection created');
+            console.log(connection);
             // let sourceNode = editor.getNodeFromId(connection.output_id);
             // let targetNode = editor.getNodeFromId(connection.input_id);
             // if (sourceNode.name === 'state' && targetNode.name === 'transition') {
@@ -1054,7 +1054,7 @@
 
 
 
-
+        // changes on connector lines design
         editor.curvature = 0;
         editor.reroute_curvature_start_end = 0;
         editor.reroute_curvature = 0;
@@ -1076,6 +1076,32 @@
         //         return ' M ...';
         //     }
         // }
+
+        // detect click on connector line and get source and target nodes
+        var connectionSourceNodeId = -1;
+        var connectionTargetNodeId = -1;
+        editor.on('click', function (e) {
+            if (e.detail === 2 && e.target.classList[0] === "main-path") {
+                // console.log(editor.connection_selected);
+                // console.log(e.path[1]);
+
+                let nodeArray = e.path[1].getAttribute('class').split(' ');
+
+                for (let index = 0; index < nodeArray.length; index++) {
+                    const element = nodeArray[index];
+
+                    if(element.indexOf('node_in_node-') !== -1) {
+                        connectionTargetNodeId = element.split('-')[1];
+                    }
+
+                    if(element.indexOf('node_out_node-') !== -1) {
+                        connectionSourceNodeId = element.split('-')[1];
+                    }
+                }
+
+                console.log(connectionSourceNodeId, connectionTargetNodeId);
+            }
+        });
     </script>
 </body>
 
