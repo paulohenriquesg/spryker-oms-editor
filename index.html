@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=720, initial-scale=1.0">
     <title>OMS Converter</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.0.12/fxparser.min.js"
-        integrity="sha512-HGrrIN/LyGNpsITQqS0Oz+0rCFt/+2/eymCPchz/Pvx8JofaxmLfoEJNIix9R1iHEnScT+HSt8WBifDINQu89g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            integrity="sha512-HGrrIN/LyGNpsITQqS0Oz+0rCFt/+2/eymCPchz/Pvx8JofaxmLfoEJNIix9R1iHEnScT+HSt8WBifDINQu89g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
-        integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+            integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css"
-        integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+          integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
     <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
 
@@ -197,9 +197,8 @@
             top: 40px;
             background: var(--background-color);
             background-size: 25px 25px;
-            background-image:
-                linear-gradient(to right, #f1f1f1 1px, transparent 1px),
-                linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
+            background-image: linear-gradient(to right, #f1f1f1 1px, transparent 1px),
+            linear-gradient(to bottom, #f1f1f1 1px, transparent 1px);
         }
 
         @media only screen and (max-width: 768px) {
@@ -215,7 +214,6 @@
                 width: calc(100vw - 51px);
             }
         }
-
 
 
         /* Editing Drawflow */
@@ -267,7 +265,7 @@
             background: white;
         }
 
-        .drawflow>.drawflow-delete {
+        .drawflow > .drawflow-delete {
             border: 2px solid #43b993;
             background: white;
             color: #43b993;
@@ -442,90 +440,125 @@
             top: 10px;
             right: 0px;
         }
+
+        /* handlding SVG */
+        .drawflow-node.shape {
+            background: transparent;
+            border: 0px;
+            pointer-events: none;
+        }
+
+        .drawflow-node.shape.selected {
+            background: transparent;
+        }
+
+        .drawflow-node.shape polygon {
+            pointer-events: all;
+        }
+
+        .drawflow-node.shape .input,
+        .drawflow-node.shape .output {
+            pointer-events: all;
+        }
+
+        .drawflow-node.shape .inputs .input_1 {
+            top: 187px;
+            left: -10px;
+        }
+
+        .drawflow-node.shape .outputs .output_1 {
+            top: 7px;
+            left: 13px;
+        }
     </style>
 </head>
 
 <body>
-    <h1>OMS Converter</h1>
-    <input onchange='upload(event)' type='file' multiple />
-    <button onclick="process()">Process</button><br>
-    <div id="textareas"></div>
-    <hr>
-    OMS Process name: <input type="text" name="processName">
-    <button onclick="exportGraph()">Export</button><br>
-    <textarea name="xml" id="export" cols="100" rows="20"></textarea>
-    <textarea name="xml" id="exportXml" cols="100" rows="20"></textarea>
-    <hr>
+<h1>OMS Converter</h1>
+<input onchange='upload(event)' type='file' multiple/>
+<button onclick="process()">Process</button>
+<br>
+<div id="textareas"></div>
+<hr>
+OMS Process name: <input type="text" name="processName">
+<button onclick="exportGraph()">Export</button>
+<br>
+<textarea name="xml" id="export" cols="100" rows="20"></textarea>
+<textarea name="xml" id="exportXml" cols="100" rows="20"></textarea>
+<hr>
 
 
-    <div class="wrapper">
-        <div class="col">
-            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="state">
-                <i class="fa fa-cogs"></i><span> State</span>
-            </div>
-            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="transition">
-                <i class="fa fa-exchange-alt"></i><span> Transition</span>
-            </div>
-            <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="event">
-                <i class="fa fa-bolt"></i><span> Event</span>
-            </div>
+<div class="wrapper">
+    <div class="col">
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="state">
+            <i class="fa fa-cogs"></i><span> State</span>
         </div>
-        <div class="col-right">
-            <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-            <!--  style="width: 5000px;height: 5000px;" -->
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="transition">
+            <i class="fa fa-exchange-alt"></i><span> Transition</span>
+        </div>
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="event">
+            <i class="fa fa-bolt"></i><span> Event</span>
         </div>
     </div>
+    <div class="col-right">
+        <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <!--  style="width: 5000px;height: 5000px;" -->
+    </div>
+</div>
 
 
+<script>
+    let id = document.getElementById("drawflow");
+    const editor = new Drawflow(id);
 
+    // editor.reroute = true;
+    editor.editor_mode = 'edit'; // Default
+    editor.start();
 
+    let mapNodeStateElement = [];
+    let mapNodeEventElement = [];
+    let mapNodeTransitionElement = [];
+    let mapNodeConditionElement = [];
+    let mapNodePositions = [];
+    let mapNodeConnectedThruConditions = [];
 
+    let combinedEventsData = [];
+    let combinedStatesData = [];
+    let combinedTransitionsData = [];
+    let combinedConditionsData = [];
 
+    editor.on('nodeCreated', function (id) {
+        // console.log("Node created " + id);
+        let nodeData = editor.getNodeFromId(id);
 
+        if (nodeData.name === 'state') {
+            combinedStatesData[nodeData.data.name]['nodeId'] = id;
+            combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
+            combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
 
-
-
-
-
-
-    <script>
-        var id = document.getElementById("drawflow");
-        const editor = new Drawflow(id);
-
-        // editor.reroute = true;
-        editor.editor_mode = 'edit'; // Default
-        editor.start();
-
-        var mapNodeStateElement = [];
-        var mapNodeEventElement = [];
-        var mapNodeTransitionElement = [];
-
-        let combinedEventsData = [];
-        let combinedStatesData = [];
-        let combinedTransitionsData = [];
-
-        editor.on('nodeCreated', function (id) {
-            // console.log("Node created " + id);
-            let nodeData = editor.getNodeFromId(id);
-            // console.log(nodeData);
-            if (nodeData.name === 'state') {
-                combinedStatesData[nodeData.data.name]['nodeId'] = id;
-                combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
-                combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
-                mapNodeStateElement.push({ name: nodeData.data.name, id })
+            if (mapNodePositions[nodeData.pos_x] === undefined) {
+                mapNodePositions[nodeData.pos_x] = [];
             }
-            if (nodeData.name === 'event') {
-                combinedEventsData[nodeData.data.name]['nodeId'] = id;
-                mapNodeEventElement.push({ name: nodeData.data.name, id })
-            }
-            if (nodeData.name === 'transition') {
-                let key = `${nodeData.data.event}-${nodeData.data.source}-${nodeData.data.target}`;
-                mapNodeTransitionElement.push({ name: key, id })
-            }
-        })
+
+            mapNodePositions[nodeData.pos_x][nodeData.pos_y] = id;
+
+            mapNodeStateElement[nodeData.data.name] = id;
+        }
+        if (nodeData.name === 'event') {
+            // combinedEventsData[nodeData.data.name]['nodeId'] = id;
+            // mapNodeEventElement.push({name: nodeData.data.name, id})
+        }
+        if (nodeData.name === 'transition') {
+            // let key = `${nodeData.data.event}-${nodeData.data.source}-${nodeData.data.target}`;
+            // mapNodeTransitionElement.push({name: key, id})
+        }
+        if (nodeData.name === 'condition') {
+            mapNodeConditionElement[nodeData.data.name] = id;
+        }
+    })
 
 
-        var htmlState = `<div>
+    let htmlState = `<div>
             <div class="title-box"><i class="fa fa-cogs"></i> State</div>
             <div class="box happy" >
                 <p>Name</p>
@@ -539,7 +572,11 @@
             </div>
           </div>`;
 
-        var htmlTransition = `<div>
+    //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M54.5 24.5h-45C5.345 24.5 2 27.845 2 32s3.345 7.5 7.5 7.5h45c4.155 0 7.5-3.345 7.5-7.5s-3.345-7.5-7.5-7.5z" stroke="#838383" fill="#efc"/><input type="text" df-name></svg></div>`;
+    //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg548" inkscape:version="0.38.1" sodipodi:docbase="/var/www/html/svg_gallery/svg/flowcharts" sodipodi:docname="fc15.svg" sodipodi:version="0.32" viewBox="15.12 72.22 469.66 361.17">  <metadata>    <rdf:RDF xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">      <cc:Work rdf:about="">        <dc:title>Clipart by Nicu Buculei - fc23</dc:title>        <dc:description></dc:description>        <dc:subject>          <rdf:Bag>            <rdf:li>flowchart</rdf:li>            <rdf:li></rdf:li>            <rdf:li>shape</rdf:li>          </rdf:Bag>        </dc:subject>        <dc:publisher>          <cc:Agent rdf:about="http://www.openclipart.org">            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:publisher>        <dc:creator>          <cc:Agent>            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:creator>        <dc:rights>          <cc:Agent>            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:rights>        <dc:date></dc:date>        <dc:format>image/svg+xml</dc:format>        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>        <cc:license rdf:resource="http://web.resource.org/cc/PublicDomain"></cc:license>        <dc:language>en</dc:language>      </cc:Work>      <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">        <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"></cc:permits>        <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"></cc:permits>        <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"></cc:permits>      </cc:License>    </rdf:RDF>  </metadata>  <defs id="defs550"></defs>  <sodipodi:namedview id="base" inkscape:cx="197.75166" inkscape:cy="200.00000" inkscape:window-height="500" inkscape:window-width="400" inkscape:window-x="5" inkscape:window-y="46" inkscape:zoom="0.77250000" showgrid="true"></sodipodi:namedview>  <g id="g827">    <path d="M 67.369808,93.462270 L 449.01471,95.410270 C 449.01471,95.410270 486.60595,152.87637 484.70250,255.14737 C 484.76992,368.13237 450.91816,431.44237 450.91816,431.44237 L 68.321534,433.39037 C 68.321534,433.39037 31.203905,370.08037 35.010811,255.14737 C 34.059085,146.05937 66.418081,94.436270 67.369808,93.462270 z " id="path1546" sodipodi:nodetypes="ccccccc" style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-opacity:1;stroke-width:3.75;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:0.25;stroke-dasharray:none;"></path>    <path d="M 51.6224 56.8269 L 442.199 58.7749 C 442.199 58.7749 480.67 116.241 478.722 218.512 C 478.791 331.497 444.147 394.807 444.147 394.807 L 52.5964 396.755 C 52.5964 396.755 14.6101 333.445 18.5061 218.512 C 17.5321 109.424 50.6484 57.8009 51.6224 56.8269 z " id="path605" sodipodi:nodetypes="ccccccc" style="fill:#ffffff;fill-rule:evenodd;stroke:black;stroke-opacity:1;stroke-width:10.116339;stroke-linejoin:round;stroke-linecap:butt;fill-opacity:1;stroke-dasharray:none;" transform="matrix(0.977132,0.000000,0.000000,1.000000,2.364802,20.45414)"></path>    <text x="0" y="50" font-family="Verdana" font-size="35" fill="blue">Hello</text></g></svg></div>`;
+    //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" viewBox="1.5 24 61 16"><path d="M54.5 24.5h-45C5.345 24.5 2 27.845 2 32s3.345 7.5 7.5 7.5h45c4.155 0 7.5-3.345 7.5-7.5s-3.345-7.5-7.5-7.5z" stroke="#838383" fill="#efc"></path></svg></div>`;
+
+    let htmlTransition = `<div>
             <div class="title-box"><i class="fa fa-exchange-alt"></i> Transition</div>
             <div class="box transition" >
                 <p>Event</p>
@@ -555,7 +592,12 @@
             </div>
           </div>`;
 
-        var htmlEvent = `<div>
+    let htmlCondition = `
+        <div>
+          <div class="title-box"><i class="fa fa-question-circle"></i> condition</div>
+        </div>
+        `;
+    let htmlEvent = `<div>
             <div class="title-box"><i class="fa fa-bolt"></i> Event</div>
             <div class="box event" >
                 <p>Name</p>
@@ -573,536 +615,642 @@
             </div>
           </div>`;
 
-        function process() {
-            const options = {
-                ignoreAttributes: false,
-                parseAttributeValue: true,
-                allowBooleanAttributes: true
+    function process() {
+        const options = {
+            ignoreAttributes: false,
+            parseAttributeValue: true,
+            allowBooleanAttributes: true
+        };
+
+        const parser = new XMLParser(options);
+
+        let combinedEvents = [];
+        let combinedStates = [];
+        let combinedTransitions = [];
+
+        let xmls = document.getElementsByClassName('xml');
+        for (let index = 0; index < xmls.length; index++) {
+            const element = xmls[index].value;
+            const parsedElement = parser.parse(element);
+
+            let process = parsedElement.statemachine.process;
+
+            // handles main process
+            if (parsedElement.statemachine.process.length !== undefined) {
+                process = parsedElement.statemachine.process[0];
+                document.getElementsByName('processName')[0].value = process['@_name'];
+            }
+
+            combinedEvents = combinedEvents.concat(process.events.event);
+            combinedStates = combinedStates.concat(process.states.state);
+            combinedTransitions = combinedTransitions.concat(process.transitions.transition);
+        }
+
+        for (let index = 0; index < combinedStates.length; index++) {
+            const element = combinedStates[index];
+            // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+            // editor.addNode('state', 1, 1, (50 + 250 * index), (20), '', data, htmlState);
+            combinedStatesData[element['@_name']] = {
+                "name": element['@_name'],
+                "color": (element['@_reserved'] !== undefined && element['@_reserved'] === true) ? '#ebf2eb' : '#ffffff',
+                "flag": (element['flag'] !== undefined) ? element['flag'] : '',
+                "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : false,
+                "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
+                "nodeId": '',
+                "childrenCount": 0,
+                "childrenNames": [],
+                "eventCount": 0,
+                "eventNames": [],
             };
-
-            const parser = new XMLParser(options);
-
-            let combinedEvents = [];
-            let combinedStates = [];
-            let combinedTransitions = [];
-
-            let xmls = document.getElementsByClassName('xml');
-            for (let index = 0; index < xmls.length; index++) {
-                const element = xmls[index].value;
-                const parsedElement = parser.parse(element);
-                // console.log(parsedElement);
-
-                let process = parsedElement.statemachine.process;
-
-                // handles main process
-                if (parsedElement.statemachine.process.length !== undefined) {
-                    process = parsedElement.statemachine.process[0];
-                    document.getElementsByName('processName')[0].value = process['@_name'];
-                }
-
-                combinedEvents = combinedEvents.concat(process.events.event);
-                combinedStates = combinedStates.concat(process.states.state);
-                combinedTransitions = combinedTransitions.concat(process.transitions.transition);
-            }
-            // console.log(xmls);
-            // console.log(combinedEvents, combinedStates, combinedTransitions);
-
-            for (let index = 0; index < combinedStates.length; index++) {
-                const element = combinedStates[index];
-                let data = {
-                    "name": element['@_name'],
-                    "color": (element['@_reserved'] !== undefined && element['@_reserved'] === true) ? '#ebf2eb' : '#ffffff',
-                    "flag": (element['flag'] !== undefined) ? element['flag'] : '',
-                    "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : false,
-                    "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
-                    "nodeId": '',
-                    "childrenCount": 0,
-                };
-                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                // editor.addNode('state', 1, 1, (50 + 250 * index), (20), '', data, htmlState);
-                combinedStatesData[element['@_name']] = data;
-            }
-            for (let index = 1; index < combinedStates.length; index++) {
-                // editor.addConnection(index, index + 1, 'output_1', 'input_1');
-            }
-
-            let counter = 0;
-
-            let posX = 10;
-            let posY = 10;
-            for (let index = 0; index < combinedTransitions.length; index++) {
-                let stayInLine = false;
-                const element = combinedTransitions[index];
-                let data = {
-                    "event": element['event'],
-                    "source": (element['source'] !== undefined) ? element['source'] : '',
-                    "target": (element['target'] !== undefined) ? element['target'] : '',
-                    "condition": (element['@_condition'] !== undefined) ? element['@_condition'] : '',
-                    "happy": (element['@_happy'] !== undefined) ? element['@_happy'] : false,
-                    "nodeId": '',
-                };
-                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                // editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
-
-                // handle missing parts of the available OMS
-                if (combinedStatesData[element['source']] === undefined) {
-                    console.log(element['source'] + ' not found');
-                    continue;
-                }
-                if (combinedStatesData[element['target']] === undefined) {
-                    console.log(element['target'] + ' not found');
-                    continue;
-                }
-
-
-                if (combinedStatesData[element['source']]['nodeId'] === '') {
-                    console.log(counter++);
-                    editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['source']], htmlState);
-                }
-
-                if (combinedStatesData[element['target']]['nodeId'] === '') {
-                    combinedStatesData[element['source']]['childrenCount'] += 1;
-
-                    posY = combinedStatesData[element['source']]['posY'] + 500;
-                    posX = combinedStatesData[element['source']]['posX'];
-                    if (combinedStatesData[element['source']]['childrenCount'] > 1) {
-                        posX += (400 * (combinedStatesData[element['source']]['childrenCount'] - 1));
-                    }
-
-                    editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
-                }
-
-                editor.addConnection(combinedStatesData[element['source']]['nodeId'], combinedStatesData[element['target']]['nodeId'], 'output_1', 'input_1');
-
-                combinedTransitionsData[element['event'] + '-' + element['source'] + '-' + element['target']] = data;
-            }
-            for (let index = 0; index < combinedEvents.length; index++) {
-                const element = combinedEvents[index];
-                let data = {
-                    "name": element['@_name'],
-                    "timeout": (element['@_timeout'] !== undefined) ? element['@_timeout'] : '',
-                    "onEnter": (element['@_onEnter'] !== undefined) ? element['@_onEnter'] : '',
-                    "command": (element['@_command'] !== undefined) ? element['@_command'] : '',
-                    "manual": (element['@_manual'] !== undefined) ? element['@_manual'] : '',
-                    "timeoutProcessor": (element['@_timeoutProcessor'] !== undefined) ? element['@_timeoutProcessor'] : '',
-                    "nodeId": '',
-                };
-                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                // editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
-                combinedEventsData[element['@_name']] = data;
-            }
-            // console.log(combinedStatesData);
-            // console.log(combinedTransitionsData);
-            // console.log(combinedEventsData);
-
-            for (let index = 0; index < combinedTransitions.length; index++) {
-                const element = combinedTransitions[index];
-                // console.log(element);
-                let source = mapNodeStateElement.find(o => o.name === element['source']);
-                let target = mapNodeStateElement.find(o => o.name === element['target']);
-                let event = mapNodeEventElement.find(o => o.name === element['event']);
-                let transition = mapNodeTransitionElement.find(o => o.name === element['event'] + '-' + element['source'] + '-' + element['target']);
-                // console.log(source, target, event, transition);
-
-                // link transition to source state
-                // editor.addConnection(source.id, transition.id, 'output_1', 'input_1');
-
-                // link transition to event
-                // editor.addConnection(transition.id, event.id, 'output_1', 'input_1');
-
-                // link event to target state
-                // editor.addConnection(event.id, target.id, 'output_1', 'input_1');
-
-
-
-
-
-
-
-                if (source !== undefined && target !== undefined) {
-                    // editor.addConnection(source.id, target.id, 'output_1', 'input_1');
-                }
-                // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-                // editor.addNode('event', 1, 1, (50 + 250*index), (350), '', data, htmlTransition);
-            }
-
-
-
-
-
-
-
-
-            // console.log(mapNodeStateElement);
-            // console.log(mapNodeEventElement);
         }
 
-        function exportGraph() {
-            var exportdata = editor.export();
-            // console.log(exportdata.drawflow.Home.data[1]);
+        for (let index = 0; index < combinedEvents.length; index++) {
+            const element = combinedEvents[index];
+            // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+            // editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
+            combinedEventsData[element['@_name']] = {
+                "name": element['@_name'],
+                "timeout": (element['@_timeout'] !== undefined) ? element['@_timeout'] : '',
+                "onEnter": (element['@_onEnter'] !== undefined) ? element['@_onEnter'] : '',
+                "command": (element['@_command'] !== undefined) ? element['@_command'] : '',
+                "manual": (element['@_manual'] !== undefined) ? element['@_manual'] : '',
+                "timeoutProcessor": (element['@_timeoutProcessor'] !== undefined) ? element['@_timeoutProcessor'] : '',
+                "nodeId": '',
+                "childrenCount": 0,
+                "childrenNames": [],
+            };
+        }
 
+        let posX = 1000;
+        let posY = 1000;
+        for (let index = 0; index < combinedTransitions.length; index++) {
+            let stayInLine = false;
+            const element = combinedTransitions[index];
+            let data = {
+                "event": element['event'],
+                "source": (element['source'] !== undefined) ? element['source'] : '',
+                "target": (element['target'] !== undefined) ? element['target'] : '',
+                "condition": (element['@_condition'] !== undefined) ? element['@_condition'] : '',
+                "happy": (element['@_happy'] !== undefined) ? element['@_happy'] : false,
+                "nodeId": '',
+            };
+            // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
+            // editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
 
-            let data = exportdata.drawflow.Home.data;
-            for (const [key, value] of Object.entries(data)) {
-                // console.log(`${key}`, value);
-
+            // handle missing parts of the available OMS
+            if (combinedStatesData[element['source']] === undefined) {
+                console.log(element['source'] + ' not found');
+                continue;
+            }
+            if (combinedStatesData[element['target']] === undefined) {
+                console.log(element['target'] + ' not found');
+                continue;
             }
 
-            document.getElementById('export').value = JSON.stringify(exportdata, null, 4);
 
-            // let baseXml = '<?xml version="1.0"?><statemachine xmlns="spryker:oms-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd"></statemachine';
-            // let xml = new DOMParser().parseFromString(baseXml, "application/xml");
+            if (combinedStatesData[element['source']]['nodeId'] === '') {
+                // editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['source']], htmlState);
+            }
 
-            let xml = document.implementation.createDocument("", "", null);
-            let header = xml.createElementNS("spryker:oms-01", "statemachine");
-            header.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-            header.setAttribute('xsi:schemaLocation', 'spryker:oms-01 http://static.spryker.com/oms-01.xsd');
+            if (combinedStatesData[element['target']]['nodeId'] === '') {
+                combinedStatesData[element['source']]['childrenCount'] += 1;
+                combinedStatesData[element['source']]['childrenNames'].push(element['target']);
 
-
-            let process = xml.createElement("process");
-            // console.log(process);
-            process.setAttribute('name', document.getElementsByName('processName')[0].value);
-            process.setAttribute('main', 'true');
-
-            let states = xml.createElement("states");
-            let transitions = xml.createElement("transitions");
-            let events = xml.createElement("events");
-
-            let combinedEvents = [];
-            let combinedStates = [];
-            let combinedTransitions = [];
-
-            for (const [key, value] of Object.entries(data)) {
-                // console.log(`${key}`, value);
-                if (value.name === 'state') {
-                    combinedStates.push(value);
-
-                    let newState = xml.createElement("state");
-                    newState.setAttribute('name', value.data.name ?? '');
-                    newState.setAttribute('display', value.data.display ?? '');
-
-                    if (value.data.reserved === true) {
-                        newState.setAttribute('reserved', true);
-                    }
-
-                    if (value.data.flag !== undefined && value.data.flag !== "") {
-                        let flag = xml.createElement('flag');
-                        let flagText = xml.createTextNode(value.data.flag);
-
-                        flag.appendChild(flagText);
-                        newState.appendChild(flag);
-                    }
-
-
-                    states.appendChild(newState);
+                if (combinedEventsData[element['event']] !== undefined) {
+                    combinedEventsData[element['event']]['childrenCount'] += 1;
+                    combinedEventsData[element['event']]['childrenNames'].push(element['target']);
+                } else {
+                    console.log('Event ' + element['event'] + ' not found')
                 }
-                if (value.name === 'transition') {
-                    combinedTransitions.push(value);
 
-                    let newTransition = xml.createElement("transition");
-
-                    if (value.data.happy === true) {
-                        newTransition.setAttribute('happy', true);
+                // posY = combinedStatesData[element['source']]['posY'] + 500;
+                // posX = combinedStatesData[element['source']]['posX'];
+                if (mapNodePositions[posX] !== undefined) {
+                    if (mapNodePositions[posX][posY] !== undefined) {
+                        // posX += 400;
                     }
-
-                    if (value.data.condition !== undefined && value.data.condition !== "") {
-                        newTransition.setAttribute('condition', value.data.condition);
-                    }
-
-                    let source = xml.createElement('source')
-                    let sourceText = xml.createTextNode(value.data.source ?? '');
-                    source.appendChild(sourceText);
-                    newTransition.appendChild(source);
-
-                    let target = xml.createElement('target')
-                    let targetText = xml.createTextNode(value.data.target ?? '');
-                    target.appendChild(targetText);
-                    newTransition.appendChild(target);
-
-                    let event = xml.createElement('event')
-                    let eventText = xml.createTextNode(value.data.event ?? '');
-                    event.appendChild(eventText);
-                    newTransition.appendChild(event);
-
-                    transitions.appendChild(newTransition);
                 }
-                if (value.name === 'event') {
-                    combinedEvents.push(value);
 
-                    let newEvent = xml.createElement("event");
-                    newEvent.setAttribute('name', value.data.name ?? '');
+                if (combinedStatesData[element['source']]['childrenCount'] > 1) {
+                    //posX += (400 * (combinedStatesData[element['source']]['childrenCount'] - 1));
+                }
 
-                    if (value.data.manual === true) {
-                        newEvent.setAttribute('manual', true);
+                combinedStatesData[element['source']]['eventCount'] += 1;
+                let event = element['event'].replaceAll(' ', '-');
+                if (combinedStatesData[element['source']]['eventNames'][event] === undefined) {
+                    combinedStatesData[element['source']]['eventNames'][event] = [];
+                }
+                combinedStatesData[element['source']]['eventNames'][event].push(element['target']);
+
+
+                // editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
+            }
+
+            // editor.addConnection(combinedStatesData[element['source']]['nodeId'], combinedStatesData[element['target']]['nodeId'], 'output_1', 'input_1');
+
+            combinedTransitionsData[event + '-' + element['source'] + '-' + element['target']] = data;
+        }
+        console.log(combinedStatesData);
+        console.log(combinedTransitionsData);
+        console.log(combinedEventsData);
+
+        for (const [key, value] of Object.entries(combinedStatesData)) {
+            console.log(value)
+            editor.addNode('state', 1, 1, 10, 10, '', value, htmlState);
+        }
+
+        for (const [key, value] of Object.entries(combinedStatesData)) {
+            for (const [key1, eventNames] of Object.entries(value.eventNames)) {
+                if (eventNames.length === 2) {
+                    // add condition graph
+                    editor.addNode('condition', 1, 1, 100, 100, '', {name: key1}, htmlCondition);
+
+                    // add connection between source and condition
+                    editor.addConnection(mapNodeStateElement[value.name], mapNodeConditionElement[key1], 'output_1', 'input_1');
+                    for (const [key2, transitions] of Object.entries(eventNames)) {
+                        // add connection between condition and target
+                        editor.addConnection(mapNodeConditionElement[key1], mapNodeStateElement[transitions], 'output_1', 'input_1');
+
+                        if (mapNodeConnectedThruConditions[value.name] === undefined) {
+                            mapNodeConnectedThruConditions[value.name] = [];
+                        }
+                        mapNodeConnectedThruConditions[value.name][transitions] = true;
                     }
+                }
+            }
+        }
+        for (let index = 0; index < combinedTransitions.length; index++) {
+            const element = combinedTransitions[index];
+            let source = mapNodeStateElement[element['source']];
+            let target = mapNodeStateElement[element['target']];
 
-                    if (value.data.command !== undefined && value.data.command !== "") {
-                        newEvent.setAttribute('command', value.data.command);
-                    }
+            // link source to target state - if they are not linked by condition
+            if (mapNodeConnectedThruConditions[element['source']] === undefined) {
+                editor.addConnection(source, target, 'output_1', 'input_1');
+            } else {
+                if (mapNodeConnectedThruConditions[element['source']][element['target']] === undefined) {
+                    editor.addConnection(source, target, 'output_1', 'input_1');
+                }
+            }
+        }
 
-                    if (value.data.timeout !== undefined && value.data.timeout !== "") {
-                        newEvent.setAttribute('timeout', value.data.timeout);
-                    }
+        // let element = mapNodeStateElement['new'];
+        // editor.drawflow.drawflow.Home.data[element].pos_x = 10;
+        // editor.drawflow.drawflow.Home.data[element].pos_y = 10;
+        // document.getElementById("node-" + element).style.top = "70px";
+        // document.getElementById("node-" + element).style.left = "60px";
+        // editor.updateConnectionNodes("node-" + element);
 
-                    if (value.data.timeoutProcessor !== undefined && value.data.timeoutProcessor !== "") {
-                        newEvent.setAttribute('timeoutProcessor', value.data.timeoutProcessor);
-                    }
+        let newCombinedStateData = [];
+        if (combinedStatesData['new'] !== undefined) {
+            newCombinedStateData['new'] = combinedStatesData['new']
+        }
+        for (const [key, value] of Object.entries(combinedStatesData)) {
+            console.log(key)
+            if (key === 'new') {
+                continue;
+            }
+            newCombinedStateData[key] = combinedStatesData[key]
+        }
+        combinedStatesData = newCombinedStateData;
 
-                    if (value.data.onEnter === true) {
-                        newEvent.setAttribute('onEnter', true);
-                    }
+        let counter = 0;
+        let alreadyPositioned = [];
+        for (const [key, value] of Object.entries(combinedStatesData)) {
+            console.log(key)
+            let element = mapNodeStateElement[key];
 
+            if (alreadyPositioned.indexOf(key) === -1){
+                editor.drawflow.drawflow.Home.data[element].pos_x = (10 + (500 * counter));
+                editor.drawflow.drawflow.Home.data[element].pos_y = 10;
+                document.getElementById("node-" + element).style.top = (10 + (500 * counter)) + "px";
+                document.getElementById("node-" + element).style.left = "10px";
+                editor.updateConnectionNodes("node-" + element);
+            }
 
-                    events.appendChild(newEvent);
+            console.log(value)
+            for (const [key1, eventNames] of Object.entries(value.eventNames)) {
+                if (eventNames.length === 2) {
+                    console.log('eventNames',eventNames,mapNodeConditionElement[key1]);
+                    let conditionElement = mapNodeConditionElement[key1];
+                    console.log(editor.drawflow.drawflow.Home.data[element].pos_x)
+
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_x = editor.drawflow.drawflow.Home.data[element].pos_x + 800;
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_y = editor.drawflow.drawflow.Home.data[element].pos_y + 400;
+                    document.getElementById("node-" + conditionElement).style.top = (editor.drawflow.drawflow.Home.data[element].pos_y + 400) + "px";
+                    document.getElementById("node-" + conditionElement).style.left = (editor.drawflow.drawflow.Home.data[element].pos_x + 800) + "px";
+                    editor.updateConnectionNodes("node-" + conditionElement);
+
+                    let leftOption = mapNodeStateElement[eventNames[0]];
+                    console.log('leftoption',eventNames[0],leftOption);
+
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250;
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
+                    document.getElementById("node-" + leftOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
+                    document.getElementById("node-" + leftOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250) + "px";
+                    editor.updateConnectionNodes("node-" + leftOption);
+                    alreadyPositioned.push(eventNames[0]);
+
+                    let rightOption = mapNodeStateElement[eventNames[1]];
+                    console.log('rightOption',eventNames[1],rightOption);
+
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250;
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
+                    document.getElementById("node-" + rightOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
+                    document.getElementById("node-" + rightOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250) + "px";
+                    editor.updateConnectionNodes("node-" + rightOption);
+                    alreadyPositioned.push(eventNames[1]);
                 }
             }
 
-            // let processTag = xml.getElementsByTagName('process')[]
-            process.appendChild(states);
-            process.appendChild(transitions);
-            process.appendChild(events);
-
-            xml.appendChild(header)
-            // console.log(process);
-            xml.documentElement.appendChild(process);
-            // xml.documentElement;
-
-            document.getElementById('exportXml').value = new XMLSerializer().serializeToString(xml);;
-
+            counter++;
         }
 
 
+        // let label1 = document.querySelector(".connection.node_in_node-2.node_out_node-1.output_1.input_1");
+
+        // addLabelText(label1, "Something");
+
+        // function addLabelText(bgPath, labelText) {
+        //     const newid = [bgPath.classList].join().replace(/\s/g, '');
+        //     bgPath.childNodes[0].id = newid;
+        //     let textElem = document.createElementNS(bgPath.namespaceURI, "text");
+        //     let textElemPath = document.createElementNS(bgPath.namespaceURI, "textPath");
+        //     textElemPath.setAttribute("href", `#${newid}`);
+        //     textElemPath.setAttribute("text-anchor", "middle");
+        //     textElemPath.setAttribute("startOffset", "50%");
+        //     textElemPath.classList.add("label-text");
+        //     textElemPath.textContent = labelText;
+        //     textElem.appendChild(textElemPath);
+        //     bgPath.appendChild(textElem);
+        // }
 
 
+        // console.log(mapNodeStateElement);
+        // console.log(mapNodeEventElement);
+    }
+
+    function exportGraph() {
+        var exportdata = editor.export();
+        // console.log(exportdata.drawflow.Home.data[1]);
 
 
+        let data = exportdata.drawflow.Home.data;
+        for (const [key, value] of Object.entries(data)) {
+            // console.log(`${key}`, value);
 
-        // EVENTS
-        // Events!
-        editor.on('nodeCreated', function (id) {
-            console.log("Node created " + id);
-        })
+        }
 
-        editor.on('nodeRemoved', function (id) {
-            console.log("Node removed " + id);
-        })
+        document.getElementById('export').value = JSON.stringify(exportdata, null, 4);
 
-        editor.on('nodeSelected', function (id) {
-            console.log("Node selected " + id);
-        })
+        // let baseXml = '<?xml version="1.0"?><statemachine xmlns="spryker:oms-01" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="spryker:oms-01 http://static.spryker.com/oms-01.xsd"></statemachine';
+        // let xml = new DOMParser().parseFromString(baseXml, "application/xml");
 
-        editor.on('moduleCreated', function (name) {
-            console.log("Module Created " + name);
-        })
+        let xml = document.implementation.createDocument("", "", null);
+        let header = xml.createElementNS("spryker:oms-01", "statemachine");
+        header.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        header.setAttribute('xsi:schemaLocation', 'spryker:oms-01 http://static.spryker.com/oms-01.xsd');
 
-        editor.on('moduleChanged', function (name) {
-            console.log("Module Changed " + name);
-        })
 
-        editor.on('connectionCreated', function (connection) {
-            console.log('Connection created');
-            console.log(connection);
-            // let sourceNode = editor.getNodeFromId(connection.output_id);
-            // let targetNode = editor.getNodeFromId(connection.input_id);
-            // if (sourceNode.name === 'state' && targetNode.name === 'transition') {
-            //     editor.updateNodeDataFromId(connection.input_id, { source: sourceNode.data.name });
-            // }
-            // if (sourceNode.name === 'transition' && targetNode.name === 'event') {
-            //     editor.updateNodeDataFromId(connection.output_id, { event: targetNode.data.name });
-            // }
+        let process = xml.createElement("process");
+        // console.log(process);
+        process.setAttribute('name', document.getElementsByName('processName')[0].value);
+        process.setAttribute('main', 'true');
 
-            // console.log(sourceNode, targetNode);
+        let states = xml.createElement("states");
+        let transitions = xml.createElement("transitions");
+        let events = xml.createElement("events");
 
-        })
+        let combinedEvents = [];
+        let combinedStates = [];
+        let combinedTransitions = [];
 
-        editor.on('connectionRemoved', function (connection) {
-            console.log('Connection removed');
-            console.log(connection);
-        })
+        for (const [key, value] of Object.entries(data)) {
+            // console.log(`${key}`, value);
+            if (value.name === 'state') {
+                combinedStates.push(value);
 
-        editor.on('mouseMove', function (position) {
-            // console.log('Position mouse x:' + position.x + ' y:' + position.y);
-        })
+                let newState = xml.createElement("state");
+                newState.setAttribute('name', value.data.name ?? '');
+                newState.setAttribute('display', value.data.display ?? '');
 
-        editor.on('nodeMoved', function (id) {
-            console.log("Node moved " + id);
-            let nodeData = editor.getNodeFromId(id);
-            console.log(nodeData);
-            if (nodeData.name === 'state') {
-                combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
-                combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
+                if (value.data.reserved === true) {
+                    newState.setAttribute('reserved', true);
+                }
+
+                if (value.data.flag !== undefined && value.data.flag !== "") {
+                    let flag = xml.createElement('flag');
+                    let flagText = xml.createTextNode(value.data.flag);
+
+                    flag.appendChild(flagText);
+                    newState.appendChild(flag);
+                }
+
+
+                states.appendChild(newState);
             }
-            console.log(nodeData.data);
-        })
+            if (value.name === 'transition') {
+                combinedTransitions.push(value);
 
-        editor.on('zoom', function (zoom) {
-            console.log('Zoom level ' + zoom);
-        })
+                let newTransition = xml.createElement("transition");
 
-        editor.on('translate', function (position) {
-            console.log('Translate x:' + position.x + ' y:' + position.y);
-        })
+                if (value.data.happy === true) {
+                    newTransition.setAttribute('happy', true);
+                }
 
-        editor.on('addReroute', function (id) {
-            console.log("Reroute added " + id);
-        })
+                if (value.data.condition !== undefined && value.data.condition !== "") {
+                    newTransition.setAttribute('condition', value.data.condition);
+                }
 
-        editor.on('removeReroute', function (id) {
-            console.log("Reroute removed " + id);
-        })
+                let source = xml.createElement('source')
+                let sourceText = xml.createTextNode(value.data.source ?? '');
+                source.appendChild(sourceText);
+                newTransition.appendChild(source);
 
-        /* DRAG EVENT */
+                let target = xml.createElement('target')
+                let targetText = xml.createTextNode(value.data.target ?? '');
+                target.appendChild(targetText);
+                newTransition.appendChild(target);
 
-        /* Mouse and Touch Actions */
+                let event = xml.createElement('event')
+                let eventText = xml.createTextNode(value.data.event ?? '');
+                event.appendChild(eventText);
+                newTransition.appendChild(event);
 
-        var elements = document.getElementsByClassName('drag-drawflow');
-        for (var i = 0; i < elements.length; i++) {
-            elements[i].addEventListener('touchend', drop, false);
-            elements[i].addEventListener('touchmove', positionMobile, false);
-            elements[i].addEventListener('touchstart', drag, false);
+                transitions.appendChild(newTransition);
+            }
+            if (value.name === 'event') {
+                combinedEvents.push(value);
+
+                let newEvent = xml.createElement("event");
+                newEvent.setAttribute('name', value.data.name ?? '');
+
+                if (value.data.manual === true) {
+                    newEvent.setAttribute('manual', true);
+                }
+
+                if (value.data.command !== undefined && value.data.command !== "") {
+                    newEvent.setAttribute('command', value.data.command);
+                }
+
+                if (value.data.timeout !== undefined && value.data.timeout !== "") {
+                    newEvent.setAttribute('timeout', value.data.timeout);
+                }
+
+                if (value.data.timeoutProcessor !== undefined && value.data.timeoutProcessor !== "") {
+                    newEvent.setAttribute('timeoutProcessor', value.data.timeoutProcessor);
+                }
+
+                if (value.data.onEnter === true) {
+                    newEvent.setAttribute('onEnter', true);
+                }
+
+
+                events.appendChild(newEvent);
+            }
         }
 
-        var mobile_item_selec = '';
-        var mobile_last_move = null;
-        function positionMobile(ev) {
-            mobile_last_move = ev;
-        }
+        // let processTag = xml.getElementsByTagName('process')[]
+        process.appendChild(states);
+        process.appendChild(transitions);
+        process.appendChild(events);
 
-        function allowDrop(ev) {
+        xml.appendChild(header)
+        // console.log(process);
+        xml.documentElement.appendChild(process);
+        // xml.documentElement;
+
+        document.getElementById('exportXml').value = new XMLSerializer().serializeToString(xml);
+
+    }
+
+
+    // EVENTS
+    // Events!
+    editor.on('nodeCreated', function (id) {
+        console.log("Node created " + id);
+    })
+
+    editor.on('nodeRemoved', function (id) {
+        console.log("Node removed " + id);
+    })
+
+    editor.on('nodeSelected', function (id) {
+        console.log("Node selected " + id);
+    })
+
+    editor.on('moduleCreated', function (name) {
+        console.log("Module Created " + name);
+    })
+
+    editor.on('moduleChanged', function (name) {
+        console.log("Module Changed " + name);
+    })
+
+    editor.on('connectionCreated', function (connection) {
+        console.log('Connection created');
+        console.log(connection);
+        // let sourceNode = editor.getNodeFromId(connection.output_id);
+        // let targetNode = editor.getNodeFromId(connection.input_id);
+        // if (sourceNode.name === 'state' && targetNode.name === 'transition') {
+        //     editor.updateNodeDataFromId(connection.input_id, { source: sourceNode.data.name });
+        // }
+        // if (sourceNode.name === 'transition' && targetNode.name === 'event') {
+        //     editor.updateNodeDataFromId(connection.output_id, { event: targetNode.data.name });
+        // }
+
+        // console.log(sourceNode, targetNode);
+
+    })
+
+    editor.on('connectionRemoved', function (connection) {
+        console.log('Connection removed');
+        console.log(connection);
+    })
+
+    editor.on('mouseMove', function (position) {
+        // console.log('Position mouse x:' + position.x + ' y:' + position.y);
+    })
+
+    editor.on('nodeMoved', function (id) {
+        console.log("Node moved " + id);
+        let nodeData = editor.getNodeFromId(id);
+        console.log(nodeData);
+        if (nodeData.name === 'state') {
+            combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
+            combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
+        }
+        console.log(nodeData.data);
+    })
+
+    editor.on('zoom', function (zoom) {
+        console.log('Zoom level ' + zoom);
+    })
+
+    editor.on('translate', function (position) {
+        console.log('Translate x:' + position.x + ' y:' + position.y);
+    })
+
+    editor.on('addReroute', function (id) {
+        console.log("Reroute added " + id);
+    })
+
+    editor.on('removeReroute', function (id) {
+        console.log("Reroute removed " + id);
+    })
+
+    /* DRAG EVENT */
+
+    /* Mouse and Touch Actions */
+
+    var elements = document.getElementsByClassName('drag-drawflow');
+    for (var i = 0; i < elements.length; i++) {
+        elements[i].addEventListener('touchend', drop, false);
+        elements[i].addEventListener('touchmove', positionMobile, false);
+        elements[i].addEventListener('touchstart', drag, false);
+    }
+
+    var mobile_item_selec = '';
+    var mobile_last_move = null;
+
+    function positionMobile(ev) {
+        mobile_last_move = ev;
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        if (ev.type === "touchstart") {
+            mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+        } else {
+            ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+        }
+    }
+
+    function drop(ev) {
+        if (ev.type === "touchend") {
+            var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+            if (parentdrawflow != null) {
+                addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
+            }
+            mobile_item_selec = '';
+        } else {
             ev.preventDefault();
+            var data = ev.dataTransfer.getData("node");
+            addNodeToDrawFlow(data, ev.clientX, ev.clientY);
         }
 
-        function drag(ev) {
-            if (ev.type === "touchstart") {
-                mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
-            } else {
-                ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
-            }
+    }
+
+    function addNodeToDrawFlow(name, pos_x, pos_y) {
+        if (editor.editor_mode === 'fixed') {
+            return false;
         }
+        pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
+        pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
 
-        function drop(ev) {
-            if (ev.type === "touchend") {
-                var parentdrawflow = document.elementFromPoint(mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
-                if (parentdrawflow != null) {
-                    addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
-                }
-                mobile_item_selec = '';
-            } else {
-                ev.preventDefault();
-                var data = ev.dataTransfer.getData("node");
-                addNodeToDrawFlow(data, ev.clientX, ev.clientY);
-            }
 
+        switch (name) {
+            case 'state':
+                editor.addNode('state', 1, 1, pos_x, pos_y, '', {}, htmlState);
+                break;
+            case 'transition':
+                editor.addNode('transition', 1, 1, pos_x, pos_y, '', {}, htmlTransition);
+                break;
+            case 'event':
+                editor.addNode('event', 1, 1, pos_x, pos_y, '', {}, htmlEvent);
+                break;
+
+
+            default:
         }
+    }
 
-        function addNodeToDrawFlow(name, pos_x, pos_y) {
-            if (editor.editor_mode === 'fixed') {
-                return false;
-            }
-            pos_x = pos_x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * (editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
-            pos_y = pos_y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * (editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
+    const upload = async (event) => {
 
+        // Convert the FileList into an array and iterate
+        let files = Array.from(event.target.files).map(file => {
 
-            switch (name) {
-                case 'state':
-                    editor.addNode('state', 1, 1, pos_x, pos_y, '', {}, htmlState);
-                    break;
-                case 'transition':
-                    editor.addNode('transition', 1, 1, pos_x, pos_y, '', {}, htmlTransition);
-                    break;
-                case 'event':
-                    editor.addNode('event', 1, 1, pos_x, pos_y, '', {}, htmlEvent);
-                    break;
+            // Define a new file reader
+            let reader = new FileReader();
 
+            // Create a new promise
+            return new Promise(resolve => {
 
-                default:
-            }
-        }
+                // Resolve the promise after reading file
+                reader.onload = () => resolve(reader.result);
 
-        const upload = async (event) => {
-
-            // Convert the FileList into an array and iterate
-            let files = Array.from(event.target.files).map(file => {
-
-                // Define a new file reader
-                let reader = new FileReader();
-
-                // Create a new promise
-                return new Promise(resolve => {
-
-                    // Resolve the promise after reading file
-                    reader.onload = () => resolve(reader.result);
-
-                    // Read the file as a text
-                    reader.readAsText(file);
-
-                });
+                // Read the file as a text
+                reader.readAsText(file);
 
             });
 
-            // At this point you'll have an array of results
-            let res = await Promise.all(files);
+        });
 
-            for (let index = 0; index < res.length; index++) {
-                const element = res[index];
-                let textarea = document.createElement('textarea');
-                textarea.setAttribute('class', 'xml');
-                textarea.innerText = element;
-                document.getElementById('textareas').appendChild(textarea);
-            }
+        // At this point you'll have an array of results
+        let res = await Promise.all(files);
+
+        for (let index = 0; index < res.length; index++) {
+            const element = res[index];
+            let textarea = document.createElement('textarea');
+            textarea.setAttribute('class', 'xml');
+            textarea.innerText = element;
+            document.getElementById('textareas').appendChild(textarea);
         }
+    }
 
 
+    // changes on connector lines design
+    editor.curvature = 0;
+    editor.reroute_curvature_start_end = 0;
+    editor.reroute_curvature = 0;
 
-        // changes on connector lines design
-        editor.curvature = 0;
-        editor.reroute_curvature_start_end = 0;
-        editor.reroute_curvature = 0;
+    // editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
+    //   var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
+    //   return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
+    // }
 
-        // editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
-        //   var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
-        //   return ' M ' + start_pos_x + ' ' + start_pos_y + ' L '+ center_x +' ' +  start_pos_y  + ' L ' + center_x + ' ' +  end_pos_y  + ' L ' + end_pos_x + ' ' + end_pos_y;
-        // }
+    // editor.createCurvature = function (start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
+    //     if (end_pos_y > start_pos_y) {
 
-        // editor.createCurvature = function (start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
-        //     if (end_pos_y > start_pos_y) {
+    //         var center_y = ((end_pos_y - start_pos_y) / 2) + start_pos_y;
+    //         return ' M ' + start_pos_x + ' ' + start_pos_y + ' L ' + start_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + end_pos_y;
 
-        //         var center_y = ((end_pos_y - start_pos_y) / 2) + start_pos_y;
-        //         return ' M ' + start_pos_x + ' ' + start_pos_y + ' L ' + start_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + center_y + ' L ' + end_pos_x + ' ' + end_pos_y;
+    //     } else {
 
-        //     } else {
+    //         // New curvature
+    //         return ' M ...';
+    //     }
+    // }
 
-        //         // New curvature
-        //         return ' M ...';
-        //     }
-        // }
+    // detect click on connector line and get source and target nodes
+    var connectionSourceNodeId = -1;
+    var connectionTargetNodeId = -1;
+    editor.on('click', function (e) {
+        if (e.detail === 2 && e.target.classList[0] === "main-path") {
+            // console.log(editor.connection_selected);
+            // console.log(e.path[1]);
 
-        // detect click on connector line and get source and target nodes
-        var connectionSourceNodeId = -1;
-        var connectionTargetNodeId = -1;
-        editor.on('click', function (e) {
-            if (e.detail === 2 && e.target.classList[0] === "main-path") {
-                // console.log(editor.connection_selected);
-                // console.log(e.path[1]);
+            let nodeArray = e.path[1].getAttribute('class').split(' ');
 
-                let nodeArray = e.path[1].getAttribute('class').split(' ');
+            for (let index = 0; index < nodeArray.length; index++) {
+                const element = nodeArray[index];
 
-                for (let index = 0; index < nodeArray.length; index++) {
-                    const element = nodeArray[index];
-
-                    if(element.indexOf('node_in_node-') !== -1) {
-                        connectionTargetNodeId = element.split('-')[1];
-                    }
-
-                    if(element.indexOf('node_out_node-') !== -1) {
-                        connectionSourceNodeId = element.split('-')[1];
-                    }
+                if (element.indexOf('node_in_node-') !== -1) {
+                    connectionTargetNodeId = element.split('-')[1];
                 }
 
-                console.log(connectionSourceNodeId, connectionTargetNodeId);
+                if (element.indexOf('node_out_node-') !== -1) {
+                    connectionSourceNodeId = element.split('-')[1];
+                }
             }
-        });
-    </script>
+
+            console.log(connectionSourceNodeId, connectionTargetNodeId);
+        }
+    });
+</script>
 </body>
 
 </html>
