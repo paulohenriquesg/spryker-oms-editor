@@ -494,6 +494,9 @@ OMS Process name: <input type="text" name="processName">
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="state">
             <i class="fa fa-cogs"></i><span> State</span>
         </div>
+        <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="condition">
+            <i class="fa fa-question-circle"></i><span> Condition</span>
+        </div>
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="transition">
             <i class="fa fa-exchange-alt"></i><span> Transition</span>
         </div>
@@ -1160,6 +1163,9 @@ OMS Process name: <input type="text" name="processName">
         switch (name) {
             case 'state':
                 editor.addNode('state', 1, 1, pos_x, pos_y, '', {}, htmlState);
+                break;
+            case 'condition':
+                editor.addNode('condition', 1, 1, pos_x, pos_y, '', {}, htmlCondition);
                 break;
             case 'transition':
                 editor.addNode('transition', 1, 1, pos_x, pos_y, '', {}, htmlTransition);
