@@ -1058,6 +1058,20 @@ OMS Process name: <input type="text" name="processName">
     editor.on('connectionCreated', function (connection) {
         console.log('Connection created');
         console.log(connection);
+
+        const nodeInfo = editor.getNodeFromId(connection.output_id);
+        if (nodeInfo.name === 'condition'){
+            // a condition can only have 2 connections
+            // TODO: implement some alert/notification
+            if(nodeInfo.outputs[connection.output_class].connections.length > 2) {
+                const removeConnectionInfo = nodeInfo.outputs[connection.output_class].connections.pop();
+                editor.removeSingleConnection(connection.output_id, removeConnectionInfo.node, connection.output_class, removeConnectionInfo.output);
+            }
+        }
+
+
+
+
         // let sourceNode = editor.getNodeFromId(connection.output_id);
         // let targetNode = editor.getNodeFromId(connection.input_id);
         // if (sourceNode.name === 'state' && targetNode.name === 'transition') {
