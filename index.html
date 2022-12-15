@@ -532,6 +532,10 @@ OMS Process name: <input type="text" name="processName">
         let nodeData = editor.getNodeFromId(id);
 
         if (nodeData.name === 'state') {
+            if (combinedStatesData[nodeData.data.name] === undefined){
+                combinedStatesData[nodeData.data.name] = [];
+            }
+
             combinedStatesData[nodeData.data.name]['nodeId'] = id;
             combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
             combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
