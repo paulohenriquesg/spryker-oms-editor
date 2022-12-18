@@ -480,6 +480,7 @@
 <button onclick="process()">Process</button>
 <br>
 <div id="textareas"></div>
+
 <hr>
 OMS Process name: <input type="text" name="processName">
 <button onclick="exportGraph()">Export</button>
@@ -531,40 +532,17 @@ OMS Process name: <input type="text" name="processName">
     let combinedTransitionsData = [];
     let combinedConditionsData = [];
 
-    editor.on('nodeCreated', function (id) {
-        // console.log("Node created " + id);
-        let nodeData = editor.getNodeFromId(id);
+    let alreadyPositioned = [];
+    let mapNodeDependencies = [];
 
-        if (nodeData.name === 'state') {
-            if (combinedStatesData[nodeData.data.name] === undefined){
-                combinedStatesData[nodeData.data.name] = [];
-            }
-
-            combinedStatesData[nodeData.data.name]['nodeId'] = id;
-            combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
-            combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
-
-            if (mapNodePositions[nodeData.pos_x] === undefined) {
-                mapNodePositions[nodeData.pos_x] = [];
-            }
-
-            mapNodePositions[nodeData.pos_x][nodeData.pos_y] = id;
-
-            mapNodeStateElement[nodeData.data.name] = id;
-        }
-        if (nodeData.name === 'event') {
-            // combinedEventsData[nodeData.data.name]['nodeId'] = id;
-            // mapNodeEventElement.push({name: nodeData.data.name, id})
-        }
-        if (nodeData.name === 'transition') {
-            // let key = `${nodeData.data.event}-${nodeData.data.source}-${nodeData.data.target}`;
-            // mapNodeTransitionElement.push({name: key, id})
-        }
-        if (nodeData.name === 'condition') {
-            mapNodeConditionElement[nodeData.data.name] = id;
-        }
-    })
-
+    function changeOption(e) {
+        const id = e.target.closest(".drawflow-node").id.slice(5);
+        const value = e.target.value;
+        const node = editor.getNodeFromId(id);
+        const data = node.data;
+        data['reserved'] = value;
+        editor.updateNodeDataFromId(id, data);
+    }
 
     let htmlState = `<div>
             <div class="title-box"><i class="fa fa-cogs"></i> State</div>
@@ -572,7 +550,11 @@ OMS Process name: <input type="text" name="processName">
                 <p>Name</p>
                 <input type="text" df-name>
                 <p>Reserved</p>
-                <input type="text" df-reserved>
+                <select name="df-reserved" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
                 <p>Flag</p>
                 <input type="text" df-flag>
                 <p>Display</p>
@@ -623,6 +605,59 @@ OMS Process name: <input type="text" name="processName">
             </div>
           </div>`;
 
+    editor.on('nodeCreated', function (id) {
+        // console.log("Node created " + id);
+        let nodeData = editor.getNodeFromId(id);
+
+        if (nodeData.name === 'state') {
+            // console.log("Node state created " + id);
+            if (combinedStatesData[nodeData.data.name] === undefined) {
+                combinedStatesData[nodeData.data.name] = [];
+            }
+
+            combinedStatesData[nodeData.data.name]['nodeId'] = id;
+            combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
+            combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
+
+
+            mapNodeStateElement[nodeData.data.name] = id;
+        }
+        if (nodeData.name === 'event') {
+            // console.log("Node event created " + id);
+            if (combinedEventsData[nodeData.data.name] === undefined) {
+                combinedEventsData[nodeData.data.name] = [];
+            }
+
+            combinedEventsData[nodeData.data.name]['nodeId'] = id;
+            combinedEventsData[nodeData.data.name]['posX'] = nodeData.pos_x;
+            combinedEventsData[nodeData.data.name]['posY'] = nodeData.pos_y;
+            combinedEventsData[nodeData.data.name] = id;
+
+            mapNodeEventElement[nodeData.data.name] = id;
+
+            // events have no output
+            editor.removeNodeOutput(id, 'output_1');
+        }
+
+        if (nodeData.name === 'transition') {
+            // console.log("Node transition created " + id);
+            if (combinedTransitionsData[nodeData.data.name] === undefined) {
+                combinedTransitionsData[nodeData.data.name] = [];
+            }
+
+            combinedTransitionsData[nodeData.data.name]['nodeId'] = id;
+            combinedTransitionsData[nodeData.data.name]['posX'] = nodeData.pos_x;
+            combinedTransitionsData[nodeData.data.name]['posY'] = nodeData.pos_y;
+            mapNodeTransitionElement[nodeData.data.name] = id;
+        }
+
+        if (nodeData.name === 'condition') {
+            // console.log("Node condition created " + id);
+            mapNodeConditionElement[nodeData.data.name] = id;
+        }
+    })
+
+
     function process() {
         const options = {
             ignoreAttributes: false,
@@ -662,13 +697,13 @@ OMS Process name: <input type="text" name="processName">
                 "name": element['@_name'],
                 "color": (element['@_reserved'] !== undefined && element['@_reserved'] === true) ? '#ebf2eb' : '#ffffff',
                 "flag": (element['flag'] !== undefined) ? element['flag'] : '',
-                "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : false,
+                "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : 'false',
                 "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
                 "nodeId": '',
                 "childrenCount": 0,
                 "childrenNames": [],
-                "eventCount": 0,
-                "eventNames": [],
+                "statesCount": 0,
+                "stateNames": [],
             };
         }
 
@@ -692,9 +727,9 @@ OMS Process name: <input type="text" name="processName">
         let posX = 1000;
         let posY = 1000;
         for (let index = 0; index < combinedTransitions.length; index++) {
-            let stayInLine = false;
             const element = combinedTransitions[index];
             let data = {
+                "name": (element['event'] + '-' + element['source'] + '-' + element['target']).replaceAll(' ', '-'),
                 "event": element['event'],
                 "source": (element['source'] !== undefined) ? element['source'] : '',
                 "target": (element['target'] !== undefined) ? element['target'] : '',
@@ -723,6 +758,8 @@ OMS Process name: <input type="text" name="processName">
             if (combinedStatesData[element['target']]['nodeId'] === '') {
                 combinedStatesData[element['source']]['childrenCount'] += 1;
                 combinedStatesData[element['source']]['childrenNames'].push(element['target']);
+                combinedStatesData[element['source']]['statesCount'] += 1;
+                combinedStatesData[element['source']]['stateNames'].push(element['target']);
 
                 if (combinedEventsData[element['event']] !== undefined) {
                     combinedEventsData[element['event']]['childrenCount'] += 1;
@@ -743,12 +780,13 @@ OMS Process name: <input type="text" name="processName">
                     //posX += (400 * (combinedStatesData[element['source']]['childrenCount'] - 1));
                 }
 
-                combinedStatesData[element['source']]['eventCount'] += 1;
                 let event = element['event'].replaceAll(' ', '-');
-                if (combinedStatesData[element['source']]['eventNames'][event] === undefined) {
-                    combinedStatesData[element['source']]['eventNames'][event] = [];
+                // console.log(element['source'], event, combinedStatesData[element['source']]['stateNames'][event])
+                if (combinedStatesData[element['source']]['stateNames'][event] === undefined) {
+                    combinedStatesData[element['source']]['stateNames'][event] = [];
                 }
-                combinedStatesData[element['source']]['eventNames'][event].push(element['target']);
+                combinedStatesData[element['source']]['stateNames'][event].push(element['target']);
+                // console.log(element['source'], event, combinedStatesData[element['source']]['stateNames'][event])
 
 
                 // editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
@@ -756,157 +794,255 @@ OMS Process name: <input type="text" name="processName">
 
             // editor.addConnection(combinedStatesData[element['source']]['nodeId'], combinedStatesData[element['target']]['nodeId'], 'output_1', 'input_1');
 
-            combinedTransitionsData[event + '-' + element['source'] + '-' + element['target']] = data;
+            combinedTransitionsData[data['name']] = data;
         }
-        console.log(combinedStatesData);
-        console.log(combinedTransitionsData);
-        console.log(combinedEventsData);
+        // console.log(combinedStatesData);
+        // console.log(combinedTransitionsData);
+        // console.log(combinedEventsData);
 
-        for (const [key, value] of Object.entries(combinedStatesData)) {
-            console.log(value)
-            editor.addNode('state', 1, 1, 10, 10, '', value, htmlState);
+        // add states to canvas
+        for (let [key, state] of Object.entries(combinedStatesData)) {
+            editor.addNode('state', 1, 1, 10, 10, '', state, htmlState);
         }
 
-        for (const [key, value] of Object.entries(combinedStatesData)) {
-            for (const [key1, eventNames] of Object.entries(value.eventNames)) {
-                if (eventNames.length === 2) {
+        // add transitions to canvas
+        for (let [key, transition] of Object.entries(combinedTransitionsData)) {
+            editor.addNode('transition', 1, 1, 100, 100, '', transition, htmlTransition);
+        }
+
+        for (const [stateName, state] of Object.entries(combinedStatesData)) {
+            for (const [conditionName, relatedStateNames] of Object.entries(state.stateNames)) {
+                if (relatedStateNames.length === 2) {
                     // add condition graph
-                    editor.addNode('condition', 1, 1, 100, 100, '', {name: key1}, htmlCondition);
+                    editor.addNode('condition', 1, 1, 100, 100, '', {name: conditionName}, htmlCondition);
 
                     // add connection between source and condition
-                    editor.addConnection(mapNodeStateElement[value.name], mapNodeConditionElement[key1], 'output_1', 'input_1');
-                    for (const [key2, transitions] of Object.entries(eventNames)) {
+                    editor.addConnection(mapNodeStateElement[stateName], mapNodeConditionElement[conditionName], 'output_1', 'input_1');
+                    for (const [key2, relatedStateName] of Object.entries(relatedStateNames)) {
                         // add connection between condition and target
-                        editor.addConnection(mapNodeConditionElement[key1], mapNodeStateElement[transitions], 'output_1', 'input_1');
+                        let transitionKey = (conditionName + '-' + stateName + '-' + relatedStateName).replaceAll(' ', '-');
+                        console.log(combinedTransitionsData[transitionKey])
 
-                        if (mapNodeConnectedThruConditions[value.name] === undefined) {
-                            mapNodeConnectedThruConditions[value.name] = [];
+                        editor.addConnection(mapNodeConditionElement[conditionName], mapNodeTransitionElement[transitionKey], 'output_1', 'input_1');
+                        editor.addConnection(mapNodeTransitionElement[transitionKey], mapNodeStateElement[relatedStateName], 'output_1', 'input_1');
+
+                        if (combinedTransitionsData[transitionKey]['happy'] === true) {
+                            let label = document.querySelector(".connection.node_in_node-" + mapNodeTransitionElement[transitionKey] + ".node_out_node-" + mapNodeConditionElement[conditionName] + ".output_1.input_1");
+
+                            addLabelText(label, "happy");
                         }
-                        mapNodeConnectedThruConditions[value.name][transitions] = true;
+
+                        if (mapNodeConnectedThruConditions[stateName] === undefined) {
+                            mapNodeConnectedThruConditions[stateName] = [];
+                            mapNodeConnectedThruConditions[stateName]['transitionKey'] = [];
+                            mapNodeConnectedThruConditions[stateName]['conditionName'] = '';
+                            mapNodeConnectedThruConditions[stateName]['states'] = [];
+                        }
+                        mapNodeConnectedThruConditions[stateName]['transitionKey'].push(transitionKey);
+                        mapNodeConnectedThruConditions[stateName]['conditionName'] = conditionName;
+                        mapNodeConnectedThruConditions[stateName]['states'][relatedStateName] = true;
                     }
                 }
             }
         }
-        for (let index = 0; index < combinedTransitions.length; index++) {
-            const element = combinedTransitions[index];
-            let source = mapNodeStateElement[element['source']];
-            let target = mapNodeStateElement[element['target']];
-
-            // link source to target state - if they are not linked by condition
-            if (mapNodeConnectedThruConditions[element['source']] === undefined) {
-                editor.addConnection(source, target, 'output_1', 'input_1');
-            } else {
-                if (mapNodeConnectedThruConditions[element['source']][element['target']] === undefined) {
-                    editor.addConnection(source, target, 'output_1', 'input_1');
-                }
-            }
-        }
-
-        // let element = mapNodeStateElement['new'];
-        // editor.drawflow.drawflow.Home.data[element].pos_x = 10;
-        // editor.drawflow.drawflow.Home.data[element].pos_y = 10;
-        // document.getElementById("node-" + element).style.top = "70px";
-        // document.getElementById("node-" + element).style.left = "60px";
-        // editor.updateConnectionNodes("node-" + element);
 
         let newCombinedStateData = [];
         if (combinedStatesData['new'] !== undefined) {
             newCombinedStateData['new'] = combinedStatesData['new']
         }
-        for (const [key, value] of Object.entries(combinedStatesData)) {
-            console.log(key)
-            if (key === 'new') {
+
+        for (const [stateName, state] of Object.entries(combinedStatesData)) {
+            if (stateName === 'new') {
                 continue;
             }
-            newCombinedStateData[key] = combinedStatesData[key]
+
+            newCombinedStateData[stateName] = combinedStatesData[stateName]
         }
         combinedStatesData = newCombinedStateData;
 
         let counter = 0;
-        let alreadyPositioned = [];
-        for (const [key, value] of Object.entries(combinedStatesData)) {
-            console.log(key)
-            let element = mapNodeStateElement[key];
+        for (const [stateNameKey, state] of Object.entries(combinedStatesData)) {
+            let stateElement = mapNodeStateElement[stateNameKey];
 
-            if (alreadyPositioned.indexOf(key) === -1){
-                editor.drawflow.drawflow.Home.data[element].pos_x = (10 + (500 * counter));
-                editor.drawflow.drawflow.Home.data[element].pos_y = 10;
-                document.getElementById("node-" + element).style.top = (10 + (500 * counter)) + "px";
-                document.getElementById("node-" + element).style.left = "10px";
-                editor.updateConnectionNodes("node-" + element);
+            if (stateNameKey === 'new') {
+                editor.drawflow.drawflow.Home.data[stateElement].pos_x = 10;
+                editor.drawflow.drawflow.Home.data[stateElement].pos_y = 10;
+                document.getElementById("node-" + stateElement).style.top = 10 + "px";
+                document.getElementById("node-" + stateElement).style.left = "10px";
+                editor.updateConnectionNodes("node-" + stateElement);
+            } else {
+                if (alreadyPositioned.indexOf(stateNameKey) === -1) {
+                    editor.drawflow.drawflow.Home.data[stateElement].pos_x = 10;
+                    editor.drawflow.drawflow.Home.data[stateElement].pos_y = (10 + (500 * counter));
+                    document.getElementById("node-" + stateElement).style.top = "10px";
+                    document.getElementById("node-" + stateElement).style.left = (10 + (500 * counter)) + "px";
+                    editor.updateConnectionNodes("node-" + stateElement);
+                }
             }
 
-            console.log(value)
-            for (const [key1, eventNames] of Object.entries(value.eventNames)) {
-                if (eventNames.length === 2) {
-                    console.log('eventNames',eventNames,mapNodeConditionElement[key1]);
-                    let conditionElement = mapNodeConditionElement[key1];
-                    console.log(editor.drawflow.drawflow.Home.data[element].pos_x)
+            for (const [conditionName, stateName] of Object.entries(state.stateNames)) {
+                if (stateName.length === 2) {
+                    let conditionElement = mapNodeConditionElement[conditionName];
 
-                    editor.drawflow.drawflow.Home.data[conditionElement].pos_x = editor.drawflow.drawflow.Home.data[element].pos_x + 800;
-                    editor.drawflow.drawflow.Home.data[conditionElement].pos_y = editor.drawflow.drawflow.Home.data[element].pos_y + 400;
-                    document.getElementById("node-" + conditionElement).style.top = (editor.drawflow.drawflow.Home.data[element].pos_y + 400) + "px";
-                    document.getElementById("node-" + conditionElement).style.left = (editor.drawflow.drawflow.Home.data[element].pos_x + 800) + "px";
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_x = editor.drawflow.drawflow.Home.data[stateElement].pos_x + 800;
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_y = editor.drawflow.drawflow.Home.data[stateElement].pos_y + 400;
+                    document.getElementById("node-" + conditionElement).style.top = (editor.drawflow.drawflow.Home.data[stateElement].pos_y + 400) + "px";
+                    document.getElementById("node-" + conditionElement).style.left = (editor.drawflow.drawflow.Home.data[stateElement].pos_x + 800) + "px";
                     editor.updateConnectionNodes("node-" + conditionElement);
 
-                    let leftOption = mapNodeStateElement[eventNames[0]];
-                    console.log('leftoption',eventNames[0],leftOption);
+                    let leftTransitionKey = (conditionName + '-' + stateNameKey + '-' + stateName[0]).replaceAll(' ', '-');
+                    console.log(leftTransitionKey)
+                    let leftTransitionElement = mapNodeTransitionElement[leftTransitionKey];
+                    editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250;
+                    editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
+                    document.getElementById("node-" + leftTransitionElement).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
+                    document.getElementById("node-" + leftTransitionElement).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250) + "px";
+                    editor.updateConnectionNodes("node-" + leftTransitionElement);
+                    alreadyPositioned.push(leftTransitionKey);
 
-                    editor.drawflow.drawflow.Home.data[leftOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250;
-                    editor.drawflow.drawflow.Home.data[leftOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
-                    document.getElementById("node-" + leftOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
-                    document.getElementById("node-" + leftOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250) + "px";
+                    let leftOption = mapNodeStateElement[stateName[0]];
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_x = editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x;
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_y = editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y + 500;
+                    document.getElementById("node-" + leftOption).style.top = (editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y + 500) + "px";
+                    document.getElementById("node-" + leftOption).style.left = (editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x) + "px";
                     editor.updateConnectionNodes("node-" + leftOption);
-                    alreadyPositioned.push(eventNames[0]);
+                    alreadyPositioned.push(stateName[0]);
 
-                    let rightOption = mapNodeStateElement[eventNames[1]];
-                    console.log('rightOption',eventNames[1],rightOption);
+                    let rightTransitionKey = (conditionName + '-' + stateNameKey + '-' + stateName[1]).replaceAll(' ', '-');
+                    let rightTransitionElement = mapNodeTransitionElement[rightTransitionKey];
+                    editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250;
+                    editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
+                    document.getElementById("node-" + rightTransitionElement).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
+                    document.getElementById("node-" + rightTransitionElement).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250) + "px";
+                    editor.updateConnectionNodes("node-" + rightTransitionElement);
+                    alreadyPositioned.push(rightTransitionKey);
 
-                    editor.drawflow.drawflow.Home.data[rightOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250;
-                    editor.drawflow.drawflow.Home.data[rightOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
-                    document.getElementById("node-" + rightOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
-                    document.getElementById("node-" + rightOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250) + "px";
+                    let rightOption = mapNodeStateElement[stateName[1]];
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_x = editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x;
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_y = editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y + 500;
+                    document.getElementById("node-" + rightOption).style.top = (editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y + 500) + "px";
+                    document.getElementById("node-" + rightOption).style.left = (editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x) + "px";
                     editor.updateConnectionNodes("node-" + rightOption);
-                    alreadyPositioned.push(eventNames[1]);
+                    alreadyPositioned.push(stateName[1]);
                 }
             }
 
             counter++;
         }
 
+        for (let [transitionKey, transition] of Object.entries(combinedTransitionsData)) {
+            let sourceElement = mapNodeStateElement[transition['source']];
+            let targetElement = mapNodeStateElement[transition['target']];
+            let transitionElement = mapNodeTransitionElement[transitionKey];
+
+            // link source to target state - if they are not linked by condition
+            if (mapNodeConnectedThruConditions[transition['source']] === undefined) {
+                console.log('transition linking source', transition['source'], 'placed');
+                console.log('happy', transition['happy'])
+                editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
+                editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+            } else {
+                if (mapNodeConnectedThruConditions[transition['source']]['states'][transition['target']] === undefined) {
+                    console.log('transition linking target', transition['target'], 'placed');
+                    editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
+                    editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+                } else {
+                    if (mapNodeConnectedThruConditions[transition['source']]['transitionKey'].indexOf(transitionKey) === -1) {
+                        console.log('transition linking target', transition['target'], 'placed', sourceElement, transitionElement);
+                        editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
+                        editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+                    }
+                }
+            }
+            if (alreadyPositioned.indexOf(transitionKey) === -1) {
+                editor.drawflow.drawflow.Home.data[transitionElement].pos_x = editor.drawflow.drawflow.Home.data[sourceElement].pos_x;
+                editor.drawflow.drawflow.Home.data[transitionElement].pos_y = editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500;
+                document.getElementById("node-" + transitionElement).style.top = (editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500) + "px";
+                document.getElementById("node-" + transitionElement).style.left = (editor.drawflow.drawflow.Home.data[sourceElement].pos_x) + "px";
+                editor.updateConnectionNodes("node-" + transitionElement);
+
+                editor.drawflow.drawflow.Home.data[targetElement].pos_x = editor.drawflow.drawflow.Home.data[transitionElement].pos_x;
+                editor.drawflow.drawflow.Home.data[targetElement].pos_y = editor.drawflow.drawflow.Home.data[transitionElement].pos_y + 500;
+                document.getElementById("node-" + targetElement).style.top = (editor.drawflow.drawflow.Home.data[transitionElement].pos_y + 500) + "px";
+                document.getElementById("node-" + targetElement).style.left = (editor.drawflow.drawflow.Home.data[transitionElement].pos_x) + "px";
+                editor.updateConnectionNodes("node-" + targetElement);
+            }
+        }
+
+        // repositioning nodes that overlap
+        do {
+            mapNodePositions = [];
+            for (let [nodeKey, node] of Object.entries(document.querySelectorAll(".drawflow-node "))) {
+                if (mapNodePositions[node.style.left + '_' + node.style.top] === undefined) {
+                    mapNodePositions[node.style.left + '_' + node.style.top] = [];
+                }
+                mapNodePositions[node.style.left + '_' + node.style.top].push(node.id);
+            }
+
+            let filteredNodes = Object.values(mapNodePositions).filter(ob => ob.length > 1)
+            for (let i = 0; i < filteredNodes.length; i++) {
+                for (let j = 1; j < filteredNodes[i].length; j++) {
+                    let node = filteredNodes[i][j];
+                    let nodeElement = node.split('-')[1];
+                    editor.drawflow.drawflow.Home.data[nodeElement].pos_x = editor.drawflow.drawflow.Home.data[nodeElement].pos_x + 250;
+                    document.getElementById(node).style.left = (editor.drawflow.drawflow.Home.data[nodeElement].pos_x + 250) + "px";
+                    editor.updateConnectionNodes(node);
+                }
+            }
+        } while (Object.values(mapNodePositions).filter(ob => ob.length > 1).length > 0);
+
+        let rightmostNode = 0;
+        for (let [nodeKey, node] of Object.entries(document.querySelectorAll(".drawflow-node "))) {
+            let leftPosition = +node.style.left.replaceAll('px', '');
+            if (leftPosition > rightmostNode) {
+                rightmostNode = leftPosition;
+            }
+        }
+
+        // add events to canvas
+        let eventCounter = 0;
+        for (let [key, event] of Object.entries(combinedEventsData)) {
+            editor.addNode('event', 1, 1, (rightmostNode + 300), (10 + (500 * eventCounter)), '', event, htmlEvent);
+            eventCounter++;
+        }
+
+        // linking transitions and events
+        for (let [transitionKey, transition] of Object.entries(combinedTransitionsData)) {
+            console.log(transition)
+            let transitionElement = mapNodeTransitionElement[transitionKey];
+            let eventElement = combinedEventsData[transition.event];
+            editor.addConnection(transitionElement, eventElement, 'output_1', 'input_1');
+        }
 
         // let label1 = document.querySelector(".connection.node_in_node-2.node_out_node-1.output_1.input_1");
 
         // addLabelText(label1, "Something");
 
-        // function addLabelText(bgPath, labelText) {
-        //     const newid = [bgPath.classList].join().replace(/\s/g, '');
-        //     bgPath.childNodes[0].id = newid;
-        //     let textElem = document.createElementNS(bgPath.namespaceURI, "text");
-        //     let textElemPath = document.createElementNS(bgPath.namespaceURI, "textPath");
-        //     textElemPath.setAttribute("href", `#${newid}`);
-        //     textElemPath.setAttribute("text-anchor", "middle");
-        //     textElemPath.setAttribute("startOffset", "50%");
-        //     textElemPath.classList.add("label-text");
-        //     textElemPath.textContent = labelText;
-        //     textElem.appendChild(textElemPath);
-        //     bgPath.appendChild(textElem);
-        // }
+        function addLabelText(bgPath, labelText) {
+            const newid = [bgPath.classList].join().replace(/\s/g, '');
+            bgPath.childNodes[0].id = newid;
+            let textElem = document.createElementNS(bgPath.namespaceURI, "text");
+            let textElemPath = document.createElementNS(bgPath.namespaceURI, "textPath");
+            textElemPath.setAttribute("href", `#${newid}`);
+            textElemPath.setAttribute("text-anchor", "middle");
+            textElemPath.setAttribute("startOffset", "50%");
+            textElemPath.classList.add("label-text");
+            textElemPath.textContent = labelText;
+            textElem.appendChild(textElemPath);
+            bgPath.appendChild(textElem);
+        }
 
 
-        // console.log(mapNodeStateElement);
-        // console.log(mapNodeEventElement);
+        // // console.log(mapNodeStateElement);
+        // // console.log(mapNodeEventElement);
     }
 
     function exportGraph() {
         var exportdata = editor.export();
-        // console.log(exportdata.drawflow.Home.data[1]);
-
 
         let data = exportdata.drawflow.Home.data;
         for (const [key, value] of Object.entries(data)) {
-            // console.log(`${key}`, value);
-
+            // // console.log(`${key}`, value);
         }
 
         document.getElementById('export').value = JSON.stringify(exportdata, null, 4);
@@ -921,7 +1057,6 @@ OMS Process name: <input type="text" name="processName">
 
 
         let process = xml.createElement("process");
-        // console.log(process);
         process.setAttribute('name', document.getElementsByName('processName')[0].value);
         process.setAttribute('main', 'true');
 
@@ -934,7 +1069,6 @@ OMS Process name: <input type="text" name="processName">
         let combinedTransitions = [];
 
         for (const [key, value] of Object.entries(data)) {
-            // console.log(`${key}`, value);
             if (value.name === 'state') {
                 combinedStates.push(value);
 
@@ -942,7 +1076,7 @@ OMS Process name: <input type="text" name="processName">
                 newState.setAttribute('name', value.data.name ?? '');
                 newState.setAttribute('display', value.data.display ?? '');
 
-                if (value.data.reserved === true) {
+                if (value.data.reserved === 'true') {
                     newState.setAttribute('reserved', true);
                 }
 
@@ -1013,23 +1147,18 @@ OMS Process name: <input type="text" name="processName">
                     newEvent.setAttribute('onEnter', true);
                 }
 
-
                 events.appendChild(newEvent);
             }
         }
 
-        // let processTag = xml.getElementsByTagName('process')[]
         process.appendChild(states);
         process.appendChild(transitions);
         process.appendChild(events);
 
         xml.appendChild(header)
-        // console.log(process);
         xml.documentElement.appendChild(process);
-        // xml.documentElement;
 
         document.getElementById('exportXml').value = new XMLSerializer().serializeToString(xml);
-
     }
 
 
@@ -1037,6 +1166,19 @@ OMS Process name: <input type="text" name="processName">
     // Events!
     editor.on('nodeCreated', function (id) {
         console.log("Node created " + id);
+
+        const node = editor.getNodeFromId(id);
+        if (node.name === 'state') {
+            const check = node.html.includes('select');
+            if (check) {
+                const reservedOptions = document.querySelectorAll(`#node-${id} select[name="df-reserved"] option`);
+                reservedOptions.forEach(e => {
+                    if (e.value === node.data.reserved) {
+                        e.selected = true;
+                    }
+                });
+            }
+        }
     })
 
     editor.on('nodeRemoved', function (id) {
@@ -1045,6 +1187,42 @@ OMS Process name: <input type="text" name="processName">
 
     editor.on('nodeSelected', function (id) {
         console.log("Node selected " + id);
+    })
+
+    editor.on('nodeDataChanged', function (id) {
+        console.log("Node changed " + id);
+        const node = editor.getNodeFromId(id);
+        console.log(node.data);
+        console.log(mapNodeDependencies[id])
+        if (mapNodeDependencies[id] !== undefined) {
+            for (let i = 0; i < mapNodeDependencies[id]['source'].length; i++) {
+                const dependantNode = editor.getNodeFromId(mapNodeDependencies[id]['source'][i]);
+                if (dependantNode.name === 'transition') {
+                    if (node.data.name !== undefined) {
+                        dependantNode.data.source = node.data.name;
+                        editor.updateNodeDataFromId(mapNodeDependencies[id]['source'][i], dependantNode.data);
+                    }
+                }
+            }
+            for (let i = 0; i < mapNodeDependencies[id]['target'].length; i++) {
+                const dependantNode = editor.getNodeFromId(mapNodeDependencies[id]['target'][i]);
+                if (dependantNode.name === 'transition') {
+                    if (node.data.name !== undefined) {
+                        dependantNode.data.target = node.data.name;
+                        editor.updateNodeDataFromId(mapNodeDependencies[id]['target'][i], dependantNode.data);
+                    }
+                }
+            }
+            for (let i = 0; i < mapNodeDependencies[id]['event'].length; i++) {
+                const dependantNode = editor.getNodeFromId(mapNodeDependencies[id]['event'][i]);
+                if (dependantNode.name === 'transition') {
+                    if (node.data.name !== undefined) {
+                        dependantNode.data.event = node.data.name;
+                        editor.updateNodeDataFromId(mapNodeDependencies[id]['event'][i], dependantNode.data);
+                    }
+                }
+            }
+        }
     })
 
     editor.on('moduleCreated', function (name) {
@@ -1059,18 +1237,70 @@ OMS Process name: <input type="text" name="processName">
         console.log('Connection created');
         console.log(connection);
 
-        const nodeInfo = editor.getNodeFromId(connection.output_id);
-        if (nodeInfo.name === 'condition'){
+        const inputNodeInfo = editor.getNodeFromId(connection.input_id);
+        const outputNodeInfo = editor.getNodeFromId(connection.output_id);
+
+        if (mapNodeDependencies[connection.output_id] === undefined) {
+            mapNodeDependencies[connection.output_id] = [];
+            mapNodeDependencies[connection.output_id]['source'] = [];
+            mapNodeDependencies[connection.output_id]['target'] = [];
+            mapNodeDependencies[connection.output_id]['event'] = [];
+        }
+
+        if (mapNodeDependencies[connection.input_id] === undefined) {
+            mapNodeDependencies[connection.input_id] = [];
+            mapNodeDependencies[connection.input_id]['source'] = [];
+            mapNodeDependencies[connection.input_id]['target'] = [];
+            mapNodeDependencies[connection.input_id]['event'] = [];
+        }
+
+        if (outputNodeInfo.name === 'state') {
+            if (inputNodeInfo.name === 'state') {
+                // a state cannot be linked directly to another atate
+                // TODO: implement some alert/notification
+                const removeConnectionInfo = outputNodeInfo.outputs[connection.output_class].connections.pop();
+                editor.removeSingleConnection(connection.output_id, removeConnectionInfo.node, connection.output_class, removeConnectionInfo.output);
+                return;
+            }
+            if (inputNodeInfo.name === 'transition') {
+                inputNodeInfo.data.source = outputNodeInfo.data.name ?? '';
+                editor.updateNodeDataFromId(connection.input_id, inputNodeInfo.data);
+                mapNodeDependencies[connection.output_id]['source'].push(connection.input_id);
+            }
+        }
+
+        if (outputNodeInfo.name === 'transition') {
+            if (inputNodeInfo.name === 'state') {
+                outputNodeInfo.data.target = inputNodeInfo.data.name ?? '';
+                editor.updateNodeDataFromId(connection.output_id, outputNodeInfo.data);
+                mapNodeDependencies[connection.input_id]['target'].push(connection.output_id);
+            }
+            if (inputNodeInfo.name === 'event') {
+                outputNodeInfo.data.event = inputNodeInfo.data.name ?? '';
+                editor.updateNodeDataFromId(connection.output_id, outputNodeInfo.data);
+                mapNodeDependencies[connection.input_id]['event'].push(connection.output_id);
+            }
+        }
+
+        if (outputNodeInfo.name === 'condition') {
             // a condition can only have 2 connections
             // TODO: implement some alert/notification
-            if(nodeInfo.outputs[connection.output_class].connections.length > 2) {
-                const removeConnectionInfo = nodeInfo.outputs[connection.output_class].connections.pop();
+            if (outputNodeInfo.outputs[connection.output_class].connections.length > 2) {
+                const removeConnectionInfo = outputNodeInfo.outputs[connection.output_class].connections.pop();
                 editor.removeSingleConnection(connection.output_id, removeConnectionInfo.node, connection.output_class, removeConnectionInfo.output);
+                return;
             }
         }
 
 
+        console.log(mapNodeDependencies)
+        console.log(inputNodeInfo.name);
+        if (inputNodeInfo.name === 'transition' && outputNodeInfo.name === 'state') {
 
+        }
+        if (inputNodeInfo.name === 'transition' && outputNodeInfo.name === 'event') {
+            editor.updateNodeDataFromId(connection.output_id, {event: outputNodeInfo.data.name});
+        }
 
         // let sourceNode = editor.getNodeFromId(connection.output_id);
         // let targetNode = editor.getNodeFromId(connection.input_id);
@@ -1088,6 +1318,16 @@ OMS Process name: <input type="text" name="processName">
     editor.on('connectionRemoved', function (connection) {
         console.log('Connection removed');
         console.log(connection);
+
+        const inputNodeInfo = editor.getNodeFromId(connection.input_id);
+        const outputNodeInfo = editor.getNodeFromId(connection.output_id);
+        if (mapNodeDependencies[connection.output_id] !== undefined) {
+            let toRemove = mapNodeDependencies[connection.output_id].indexOf(connection.input_id);
+            if (toRemove !== -1) {
+                mapNodeDependencies[connection.output_id].splice(toRemove, 1);
+            }
+        }
+        console.log(mapNodeDependencies)
     })
 
     editor.on('mouseMove', function (position) {
@@ -1098,6 +1338,10 @@ OMS Process name: <input type="text" name="processName">
         console.log("Node moved " + id);
         let nodeData = editor.getNodeFromId(id);
         console.log(nodeData);
+        if (combinedStatesData[nodeData.data.name] === undefined) {
+            combinedStatesData[nodeData.data.name] = [];
+        }
+
         if (nodeData.name === 'state') {
             combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
             combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
@@ -1110,7 +1354,7 @@ OMS Process name: <input type="text" name="processName">
     })
 
     editor.on('translate', function (position) {
-        console.log('Translate x:' + position.x + ' y:' + position.y);
+        // console.log('Translate x:' + position.x + ' y:' + position.y);
     })
 
     editor.on('addReroute', function (id) {
@@ -1228,9 +1472,9 @@ OMS Process name: <input type="text" name="processName">
 
 
     // changes on connector lines design
-    editor.curvature = 0;
-    editor.reroute_curvature_start_end = 0;
-    editor.reroute_curvature = 0;
+    // editor.curvature = 0;
+    // editor.reroute_curvature_start_end = 0;
+    // editor.reroute_curvature = 0;
 
     // editor.createCurvature = function(start_pos_x, start_pos_y, end_pos_x, end_pos_y, curvature_value) {
     //   var center_x = ((end_pos_x - start_pos_x)/2)+start_pos_x;
@@ -1250,13 +1494,14 @@ OMS Process name: <input type="text" name="processName">
     //     }
     // }
 
+
     // detect click on connector line and get source and target nodes
     var connectionSourceNodeId = -1;
     var connectionTargetNodeId = -1;
     editor.on('click', function (e) {
         if (e.detail === 2 && e.target.classList[0] === "main-path") {
-            // console.log(editor.connection_selected);
-            // console.log(e.path[1]);
+            // // console.log(editor.connection_selected);
+            // // console.log(e.path[1]);
 
             let nodeArray = e.path[1].getAttribute('class').split(' ');
 
@@ -1272,7 +1517,7 @@ OMS Process name: <input type="text" name="processName">
                 }
             }
 
-            console.log(connectionSourceNodeId, connectionTargetNodeId);
+            // console.log(connectionSourceNodeId, connectionTargetNodeId);
         }
     });
 </script>
