@@ -471,6 +471,11 @@
             top: 7px;
             left: 13px;
         }
+
+        /*  hide uploaded textareas  */
+        .xml {
+            display: none;
+        }
     </style>
 </head>
 
@@ -485,7 +490,7 @@
 OMS Process name: <input type="text" name="processName">
 <button onclick="exportGraph()">Export</button>
 <br>
-<textarea name="xml" id="export" cols="100" rows="20"></textarea>
+<textarea name="xml" style="display: none" id="export" cols="100" rows="20"></textarea>
 <textarea name="xml" id="exportXml" cols="100" rows="20"></textarea>
 <hr>
 
@@ -537,10 +542,20 @@ OMS Process name: <input type="text" name="processName">
 
     function changeOption(e) {
         const id = e.target.closest(".drawflow-node").id.slice(5);
+        const field = e.target.name.split('-')[1];
         const value = e.target.value;
         const node = editor.getNodeFromId(id);
         const data = node.data;
-        data['reserved'] = value;
+        if (node.name === 'state') {
+            data['reserved'] = value;
+        }
+        if (node.name === 'transition') {
+            data['happy'] = value;
+        }
+        if (node.name === 'event') {
+            data[field] = value;
+        }
+
         editor.updateNodeDataFromId(id, data);
     }
 
@@ -578,7 +593,11 @@ OMS Process name: <input type="text" name="processName">
                 <p>Condition</p>
                 <input type="text" df-condition>
                 <p>Happy</p>
-                <input type="text" df-happy>
+                <select name="df-happy" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
             </div>
           </div>`;
 
@@ -595,13 +614,23 @@ OMS Process name: <input type="text" name="processName">
                 <p>Command</p>
                 <input type="text" df-command>
                 <p>onEnter</p>
-                <input type="text" df-onEnter>
+<!--                <input type="text" df-onEnter>-->
+                <select name="df-onEnter" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+                <p>Manual</p>
+<!--                <input type="text" df-manual>-->
+                <select name="df-manual" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
                 <p>Timeout</p>
                 <input type="text" df-timeout>
                 <p>Timeout Processor</p>
                 <input type="text" df-timeoutProcessor>
-                <p>Manual</p>
-                <input type="text" df-manual>
             </div>
           </div>`;
 
@@ -659,6 +688,7 @@ OMS Process name: <input type="text" name="processName">
 
 
     function process() {
+        editor.clear();
         const options = {
             ignoreAttributes: false,
             parseAttributeValue: true,
@@ -697,7 +727,7 @@ OMS Process name: <input type="text" name="processName">
                 "name": element['@_name'],
                 "color": (element['@_reserved'] !== undefined && element['@_reserved'] === true) ? '#ebf2eb' : '#ffffff',
                 "flag": (element['flag'] !== undefined) ? element['flag'] : '',
-                "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] : 'false',
+                "reserved": (element['@_reserved'] !== undefined) ? element['@_reserved'] + '' : 'false',
                 "display": (element['@_display'] !== undefined) ? element['@_display'] : '',
                 "nodeId": '',
                 "childrenCount": 0,
@@ -714,9 +744,9 @@ OMS Process name: <input type="text" name="processName">
             combinedEventsData[element['@_name']] = {
                 "name": element['@_name'],
                 "timeout": (element['@_timeout'] !== undefined) ? element['@_timeout'] : '',
-                "onEnter": (element['@_onEnter'] !== undefined) ? element['@_onEnter'] : '',
+                "onEnter": (element['@_onEnter'] !== undefined) ? element['@_onEnter'] + '' : 'false',
                 "command": (element['@_command'] !== undefined) ? element['@_command'] : '',
-                "manual": (element['@_manual'] !== undefined) ? element['@_manual'] : '',
+                "manual": (element['@_manual'] !== undefined) ? element['@_manual'] + '' : 'false',
                 "timeoutProcessor": (element['@_timeoutProcessor'] !== undefined) ? element['@_timeoutProcessor'] : '',
                 "nodeId": '',
                 "childrenCount": 0,
@@ -734,7 +764,7 @@ OMS Process name: <input type="text" name="processName">
                 "source": (element['source'] !== undefined) ? element['source'] : '',
                 "target": (element['target'] !== undefined) ? element['target'] : '',
                 "condition": (element['@_condition'] !== undefined) ? element['@_condition'] : '',
-                "happy": (element['@_happy'] !== undefined) ? element['@_happy'] : false,
+                "happy": (element['@_happy'] !== undefined) ? element['@_happy'] + '' : 'false',
                 "nodeId": '',
             };
             // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
@@ -1096,7 +1126,7 @@ OMS Process name: <input type="text" name="processName">
 
                 let newTransition = xml.createElement("transition");
 
-                if (value.data.happy === true) {
+                if (value.data.happy === 'true') {
                     newTransition.setAttribute('happy', true);
                 }
 
@@ -1127,7 +1157,7 @@ OMS Process name: <input type="text" name="processName">
                 let newEvent = xml.createElement("event");
                 newEvent.setAttribute('name', value.data.name ?? '');
 
-                if (value.data.manual === true) {
+                if (value.data.manual === 'true') {
                     newEvent.setAttribute('manual', true);
                 }
 
@@ -1143,7 +1173,7 @@ OMS Process name: <input type="text" name="processName">
                     newEvent.setAttribute('timeoutProcessor', value.data.timeoutProcessor);
                 }
 
-                if (value.data.onEnter === true) {
+                if (value.data.onEnter === 'true') {
                     newEvent.setAttribute('onEnter', true);
                 }
 
@@ -1174,6 +1204,35 @@ OMS Process name: <input type="text" name="processName">
                 const reservedOptions = document.querySelectorAll(`#node-${id} select[name="df-reserved"] option`);
                 reservedOptions.forEach(e => {
                     if (e.value === node.data.reserved) {
+                        e.selected = true;
+                    }
+                });
+            }
+        }
+        if (node.name === 'transition') {
+            const check = node.html.includes('select');
+            if (check) {
+                const happyOptions = document.querySelectorAll(`#node-${id} select[name="df-happy"] option`);
+                happyOptions.forEach(e => {
+                    if (e.value === node.data.happy) {
+                        e.selected = true;
+                    }
+                });
+            }
+        }
+        if (node.name === 'event') {
+            const check = node.html.includes('select');
+            console.log(check)
+            if (check) {
+                const onEnterOptions = document.querySelectorAll(`#node-${id} select[name="df-onEnter"] option`);
+                onEnterOptions.forEach(e => {
+                    if (e.value === node.data.onEnter) {
+                        e.selected = true;
+                    }
+                });
+                const manualrOptions = document.querySelectorAll(`#node-${id} select[name="df-manual"] option`);
+                manualrOptions.forEach(e => {
+                    if (e.value === node.data.manual) {
                         e.selected = true;
                     }
                 });
@@ -1290,11 +1349,17 @@ OMS Process name: <input type="text" name="processName">
                 editor.removeSingleConnection(connection.output_id, removeConnectionInfo.node, connection.output_class, removeConnectionInfo.output);
                 return;
             }
+
+            if (inputNodeInfo.name === 'transition') {
+                const parentFromCondition = outputNodeInfo.inputs.input_1.connections[0].node
+                const parentFromConditionNodeInfo = editor.getNodeFromId(parentFromCondition);
+
+                inputNodeInfo.data.source = parentFromConditionNodeInfo.data.name ?? '';
+                editor.updateNodeDataFromId(connection.input_id, inputNodeInfo.data);
+                mapNodeDependencies[parentFromCondition]['source'].push(connection.input_id);
+            }
         }
 
-
-        console.log(mapNodeDependencies)
-        console.log(inputNodeInfo.name);
         if (inputNodeInfo.name === 'transition' && outputNodeInfo.name === 'state') {
 
         }
