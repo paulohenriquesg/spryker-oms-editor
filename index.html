@@ -15,6 +15,7 @@
           integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
     <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/micromodal/dist/micromodal.min.js"></script>
 
     <style>
         :root {
@@ -49,25 +50,6 @@
             color: black;
         }
 
-        .them-edit-link {
-            position: absolute;
-            top: 10px;
-            right: 100px;
-            color: black;
-            font-size: 40px;
-        }
-
-        .them-edit-link a {
-            text-decoration: none;
-        }
-
-        .github-link {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            color: black;
-        }
-
         .wrapper {
             width: 100%;
             height: calc(100vh - 67px);
@@ -87,107 +69,6 @@
             padding-left: 20px;
             cursor: move;
             user-select: none;
-        }
-
-        .menu {
-            position: absolute;
-            height: 40px;
-            display: block;
-            background: white;
-            width: 100%;
-        }
-
-        .menu ul {
-            padding: 0px;
-            margin: 0px;
-            line-height: 40px;
-        }
-
-        .menu ul li {
-            display: inline-block;
-            margin-left: 10px;
-            border-right: 1px solid var(--border-color);
-            padding-right: 10px;
-            line-height: 40px;
-            cursor: pointer;
-        }
-
-        .menu ul li.selected {
-            font-weight: bold;
-        }
-
-        .btn-export {
-            float: right;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: white;
-            font-weight: bold;
-            border: 1px solid #0e5ba3;
-            background: #4ea9ff;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .btn-clear {
-            float: right;
-            position: absolute;
-            top: 10px;
-            right: 85px;
-            color: white;
-            font-weight: bold;
-            border: 1px solid #96015b;
-            background: #e3195a;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 5;
-        }
-
-        .swal-wide {
-            width: 80% !important;
-        }
-
-        .btn-lock {
-            float: right;
-            position: absolute;
-            bottom: 10px;
-            right: 140px;
-            display: flex;
-            font-size: 24px;
-            color: white;
-            padding: 5px 10px;
-            background: #555555;
-            border-radius: 4px;
-            border-right: 1px solid var(--border-color);
-            z-index: 5;
-            cursor: pointer;
-        }
-
-        .bar-zoom {
-            float: right;
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            display: flex;
-            font-size: 24px;
-            color: white;
-            padding: 5px 10px;
-            background: #555555;
-            border-radius: 4px;
-            border-right: 1px solid var(--border-color);
-            z-index: 5;
-        }
-
-        .bar-zoom svg {
-            cursor: pointer;
-            padding-left: 10px;
-        }
-
-        .bar-zoom svg:nth-child(1) {
-            padding-left: 0px;
         }
 
         #drawflow {
@@ -220,16 +101,18 @@
 
         .drawflow .drawflow-node {
             background: var(--background-color);
-            border: 1px solid var(--border-color);
+            /*border: 1px solid var(--border-color);*/
             -webkit-box-shadow: 0 2px 15px 2px var(--border-color);
             box-shadow: 0 2px 15px 2px var(--border-color);
             padding: 0px;
             width: 200px;
+            border-radius: 10px;
+            border: 4px solid #305A72;
         }
 
         .drawflow .drawflow-node.selected {
             background: white;
-            border: 1px solid #4ea9ff;
+            border: 4px solid #4ea9ff;
             -webkit-box-shadow: 0 2px 20px 2px #4ea9ff;
             box-shadow: 0 2px 20px 2px #4ea9ff;
         }
@@ -363,41 +246,6 @@
         }
 
 
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 7;
-            left: 0;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
-            background-color: rgba(0, 0, 0, 0.7);
-
-        }
-
-        .modal-content {
-            position: relative;
-            background-color: #fefefe;
-            margin: 15% auto;
-            /* 15% from the top and centered */
-            padding: 20px;
-            border: 1px solid #888;
-            width: 400px;
-            /* Could be more or less, depending on screen size */
-        }
-
-        /* The Close Button */
-        .modal .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
         @media only screen and (max-width: 768px) {
             .modal-content {
                 width: 80%;
@@ -476,7 +324,228 @@
         .xml {
             display: none;
         }
-    </style>
+
+        .state {
+            /*border-radius: 10px;*/
+            /*border: 4px solid #305A72;*/
+            height: 100px;
+            width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .drawflow .parent-node .romb {
+            transform: rotate(45deg);
+            width: 200px;
+            height: 200px;
+            display: flex;
+        }
+
+        .drawflow .parent-node .romb .drawflow_content_node {
+            transform: rotate(-45deg);
+            height: 100px;
+        }
+
+        .drawflow .parent-node .romb .input_1 {
+            transform: rotate(-45deg);
+            position: relative;
+            top: 100px;
+            left: 20px;
+        }
+
+        .drawflow .parent-node .romb .output_1 {
+            transform: rotate(-45deg);
+            position: relative;
+            top: -100px;
+            right: 0px;
+        }
+
+        .drawflow .parent-node .romb .output_2 {
+            transform: rotate(-45deg);
+            position: relative;
+            top: 100px;
+            right: 20px;
+        }
+
+        .drawflow .parent-node .romb .output_3 {
+            transform: rotate(-45deg);
+            position: relative;
+            top: 10px;
+            right: 0px;
+        }
+
+
+        /*  modal */
+        /**************************\
+          Basic Modal Styles
+        \**************************/
+
+        .modal {
+            font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, helvetica neue, helvetica, ubuntu, roboto, noto, segoe ui, arial, sans-serif;
+        }
+
+        .modal__overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal__container {
+            background-color: #fff;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 100vh;
+            border-radius: 4px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .modal__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal__title {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+            line-height: 1.25;
+            color: #00449e;
+            box-sizing: border-box;
+        }
+
+        .modal__close {
+            background: transparent;
+            border: 0;
+        }
+
+        .modal__header .modal__close:before {
+            content: "\2715";
+        }
+
+        .modal__content {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            color: rgba(0, 0, 0, .8);
+        }
+
+        .modal__btn {
+            font-size: .875rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: .5rem;
+            padding-bottom: .5rem;
+            background-color: #e6e6e6;
+            color: rgba(0, 0, 0, .8);
+            border-radius: .25rem;
+            border-style: none;
+            border-width: 0;
+            cursor: pointer;
+            -webkit-appearance: button;
+            text-transform: none;
+            overflow: visible;
+            line-height: 1.15;
+            margin: 0;
+            will-change: transform;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            transition: -webkit-transform .25s ease-out;
+            transition: transform .25s ease-out;
+            transition: transform .25s ease-out, -webkit-transform .25s ease-out;
+        }
+
+        .modal__btn:focus, .modal__btn:hover {
+            -webkit-transform: scale(1.05);
+            transform: scale(1.05);
+        }
+
+        .modal__btn-primary {
+            background-color: #00449e;
+            color: #fff;
+        }
+
+
+        /**************************\
+          Demo Animation Style
+        \**************************/
+        @keyframes mmfadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes mmfadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        @keyframes mmslideIn {
+            from {
+                transform: translateY(15%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes mmslideOut {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-10%);
+            }
+        }
+
+        .micromodal-slide {
+            display: none;
+        }
+
+        .micromodal-slide.is-open {
+            display: block;
+        }
+
+        .micromodal-slide[aria-hidden="false"] .modal__overlay {
+            animation: mmfadeIn .3s cubic-bezier(0.0, 0.0, 0.2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="false"] .modal__container {
+            animation: mmslideIn .3s cubic-bezier(0, 0, .2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="true"] .modal__overlay {
+            animation: mmfadeOut .3s cubic-bezier(0.0, 0.0, 0.2, 1);
+        }
+
+        .micromodal-slide[aria-hidden="true"] .modal__container {
+            animation: mmslideOut .3s cubic-bezier(0, 0, .2, 1);
+        }
+
+        .micromodal-slide .modal__container,
+        .micromodal-slide .modal__overlay {
+            will-change: transform;
+        }    </style>
 </head>
 
 <body>
@@ -503,20 +572,143 @@ OMS Process name: <input type="text" name="processName">
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="condition">
             <i class="fa fa-question-circle"></i><span> Condition</span>
         </div>
+        <!--
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="transition">
             <i class="fa fa-exchange-alt"></i><span> Transition</span>
         </div>
         <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="event">
             <i class="fa fa-bolt"></i><span> Event</span>
         </div>
+        -->
     </div>
     <div class="col-right">
         <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-        <!--  style="width: 5000px;height: 5000px;" -->
     </div>
 </div>
 
 
+<div class="modal micromodal-slide" id="modal-state" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-state-title">
+            <header class="modal__header">
+                <h2 class="modal__title" id="modal-state-title">
+                    State
+                    <input type="hidden" name="state-nodeId" id="state-nodeId">
+                </h2>
+                <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+            </header>
+            <main class="modal__content" id="modal-state-content">
+                <p>Try hitting the <code>tab</code> key and notice how the focus stays within the modal itself. Also, <code>esc</code> to close modal</p>
+                <p>
+                <p>Name</p>
+                <input type="text" id="state-name">
+                <p>Reserved</p>
+                <select id="state-reserved">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+                <p>Flag</p>
+                <input type="text" id="state-flag">
+                <p>Display</p>
+                <input type="text" id="state-display">
+                </p>
+            </main>
+            <footer class="modal__footer">
+                <button class="modal__btn modal__btn-primary" onclick="createOrUpdateStateData()">Continue</button>
+                <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+            </footer>
+        </div>
+    </div>
+</div>
+<div class="modal micromodal-slide" id="modal-transition" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-transition-title">
+            <header class="modal__header">
+                <h2 class="modal__title" id="modal-transition-title">
+                    Transition
+                </h2>
+                <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+            </header>
+            <main class="modal__content" id="modal-transition-content">
+                <p>
+                <p>Event</p>
+                <input type="text" df-event>
+                <p>Source</p>
+                <input type="text" df-source>
+                <p>Target</p>
+                <input type="text" df-target>
+                <p>Condition</p>
+                <input type="text" df-condition>
+                <p>Happy</p>
+                <select name="df-happy" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+
+                </p>
+                <p>
+                <p>Name</p>
+                <input type="text" df-name>
+                <p>Command</p>
+                <input type="text" df-command>
+                <p>onEnter</p>
+                <!--                <input type="text" df-onEnter>-->
+                <select name="df-onEnter" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+                <p>Manual</p>
+                <!--                <input type="text" df-manual>-->
+                <select name="df-manual" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+                <p>Timeout</p>
+                <input type="text" df-timeout>
+                <p>Timeout Processor</p>
+                <input type="text" df-timeoutProcessor>
+
+                </p>
+            </main>
+            <footer class="modal__footer">
+                <button class="modal__btn modal__btn-primary">Continue</button>
+                <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+            </footer>
+        </div>
+    </div>
+</div>
+<div class="modal micromodal-slide" id="modal-condition" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modal-condition-title">
+            <header class="modal__header">
+                <h2 class="modal__title" id="modal-condition-title">
+                    Condition
+                </h2>
+                <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+            </header>
+            <main class="modal__content" id="modal-condition-content">
+                <p>
+                <p>Name</p>
+                <input type="text" df-name>
+                <p>Happy</p>
+                <select name="df-happy" onchange="changeOption(event)">
+                    <option value="">Select</option>
+                    <option value="true">true</option>
+                    <option value="false">false</option>
+                </select>
+                </p>
+            </main>
+            <footer class="modal__footer">
+                <button class="modal__btn modal__btn-primary">Continue</button>
+                <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Close</button>
+            </footer>
+        </div>
+    </div>
+</div>
 <script>
     let id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
@@ -541,6 +733,7 @@ OMS Process name: <input type="text" name="processName">
     let mapNodeDependencies = [];
 
     function changeOption(e) {
+        return;
         const id = e.target.closest(".drawflow-node").id.slice(5);
         const field = e.target.name.split('-')[1];
         const value = e.target.value;
@@ -559,7 +752,7 @@ OMS Process name: <input type="text" name="processName">
         editor.updateNodeDataFromId(id, data);
     }
 
-    let htmlState = `<div>
+    let htmlState = `<div class="state">
             <div class="title-box"><i class="fa fa-cogs"></i> State</div>
             <div class="box happy" >
                 <p>Name</p>
@@ -577,6 +770,10 @@ OMS Process name: <input type="text" name="processName">
             </div>
           </div>`;
 
+    htmlState = `
+        <div class="state" ondblclick="showpopup(event)">
+            ==content==
+        </div>`;
     //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round"><path d="M54.5 24.5h-45C5.345 24.5 2 27.845 2 32s3.345 7.5 7.5 7.5h45c4.155 0 7.5-3.345 7.5-7.5s-3.345-7.5-7.5-7.5z" stroke="#838383" fill="#efc"/><input type="text" df-name></svg></div>`;
     //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" id="svg548" inkscape:version="0.38.1" sodipodi:docbase="/var/www/html/svg_gallery/svg/flowcharts" sodipodi:docname="fc15.svg" sodipodi:version="0.32" viewBox="15.12 72.22 469.66 361.17">  <metadata>    <rdf:RDF xmlns:cc="http://web.resource.org/cc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">      <cc:Work rdf:about="">        <dc:title>Clipart by Nicu Buculei - fc23</dc:title>        <dc:description></dc:description>        <dc:subject>          <rdf:Bag>            <rdf:li>flowchart</rdf:li>            <rdf:li></rdf:li>            <rdf:li>shape</rdf:li>          </rdf:Bag>        </dc:subject>        <dc:publisher>          <cc:Agent rdf:about="http://www.openclipart.org">            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:publisher>        <dc:creator>          <cc:Agent>            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:creator>        <dc:rights>          <cc:Agent>            <dc:title>Nicu Buculei</dc:title>          </cc:Agent>        </dc:rights>        <dc:date></dc:date>        <dc:format>image/svg+xml</dc:format>        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>        <cc:license rdf:resource="http://web.resource.org/cc/PublicDomain"></cc:license>        <dc:language>en</dc:language>      </cc:Work>      <cc:License rdf:about="http://web.resource.org/cc/PublicDomain">        <cc:permits rdf:resource="http://web.resource.org/cc/Reproduction"></cc:permits>        <cc:permits rdf:resource="http://web.resource.org/cc/Distribution"></cc:permits>        <cc:permits rdf:resource="http://web.resource.org/cc/DerivativeWorks"></cc:permits>      </cc:License>    </rdf:RDF>  </metadata>  <defs id="defs550"></defs>  <sodipodi:namedview id="base" inkscape:cx="197.75166" inkscape:cy="200.00000" inkscape:window-height="500" inkscape:window-width="400" inkscape:window-x="5" inkscape:window-y="46" inkscape:zoom="0.77250000" showgrid="true"></sodipodi:namedview>  <g id="g827">    <path d="M 67.369808,93.462270 L 449.01471,95.410270 C 449.01471,95.410270 486.60595,152.87637 484.70250,255.14737 C 484.76992,368.13237 450.91816,431.44237 450.91816,431.44237 L 68.321534,433.39037 C 68.321534,433.39037 31.203905,370.08037 35.010811,255.14737 C 34.059085,146.05937 66.418081,94.436270 67.369808,93.462270 z " id="path1546" sodipodi:nodetypes="ccccccc" style="fill:#000000;fill-rule:evenodd;stroke:none;stroke-opacity:1;stroke-width:3.75;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:0.25;stroke-dasharray:none;"></path>    <path d="M 51.6224 56.8269 L 442.199 58.7749 C 442.199 58.7749 480.67 116.241 478.722 218.512 C 478.791 331.497 444.147 394.807 444.147 394.807 L 52.5964 396.755 C 52.5964 396.755 14.6101 333.445 18.5061 218.512 C 17.5321 109.424 50.6484 57.8009 51.6224 56.8269 z " id="path605" sodipodi:nodetypes="ccccccc" style="fill:#ffffff;fill-rule:evenodd;stroke:black;stroke-opacity:1;stroke-width:10.116339;stroke-linejoin:round;stroke-linecap:butt;fill-opacity:1;stroke-dasharray:none;" transform="matrix(0.977132,0.000000,0.000000,1.000000,2.364802,20.45414)"></path>    <text x="0" y="50" font-family="Verdana" font-size="35" fill="blue">Hello</text></g></svg></div>`;
     //   var htmlState = `<div class="shape"><svg xmlns="http://www.w3.org/2000/svg" fill="#fff" fill-rule="evenodd" stroke="#000" stroke-linecap="round" stroke-linejoin="round" viewBox="1.5 24 61 16"><path d="M54.5 24.5h-45C5.345 24.5 2 27.845 2 32s3.345 7.5 7.5 7.5h45c4.155 0 7.5-3.345 7.5-7.5s-3.345-7.5-7.5-7.5z" stroke="#838383" fill="#efc"></path></svg></div>`;
@@ -602,8 +799,8 @@ OMS Process name: <input type="text" name="processName">
           </div>`;
 
     let htmlCondition = `
-        <div>
-          <div class="title-box"><i class="fa fa-question-circle"></i> condition</div>
+        <div class="state" ondblclick="showpopup(event)">
+          ==content==
         </div>
         `;
     let htmlEvent = `<div>
@@ -638,31 +835,32 @@ OMS Process name: <input type="text" name="processName">
         // console.log("Node created " + id);
         let nodeData = editor.getNodeFromId(id);
 
+        let nodeDataName = nodeData.data.name ?? '';
         if (nodeData.name === 'state') {
-            // console.log("Node state created " + id);
-            if (combinedStatesData[nodeData.data.name] === undefined) {
-                combinedStatesData[nodeData.data.name] = [];
+            console.log("Node state created " + id);
+            if (combinedStatesData[nodeDataName] === undefined) {
+                combinedStatesData[nodeDataName] = [];
             }
 
-            combinedStatesData[nodeData.data.name]['nodeId'] = id;
-            combinedStatesData[nodeData.data.name]['posX'] = nodeData.pos_x;
-            combinedStatesData[nodeData.data.name]['posY'] = nodeData.pos_y;
+            combinedStatesData[nodeDataName]['nodeId'] = id;
+            combinedStatesData[nodeDataName]['posX'] = nodeData.pos_x;
+            combinedStatesData[nodeDataName]['posY'] = nodeData.pos_y;
 
 
-            mapNodeStateElement[nodeData.data.name] = id;
+            mapNodeStateElement[nodeDataName] = id;
         }
         if (nodeData.name === 'event') {
             // console.log("Node event created " + id);
-            if (combinedEventsData[nodeData.data.name] === undefined) {
-                combinedEventsData[nodeData.data.name] = [];
+            if (combinedEventsData[nodeDataName] === undefined) {
+                combinedEventsData[nodeDataName] = [];
             }
 
-            combinedEventsData[nodeData.data.name]['nodeId'] = id;
-            combinedEventsData[nodeData.data.name]['posX'] = nodeData.pos_x;
-            combinedEventsData[nodeData.data.name]['posY'] = nodeData.pos_y;
-            combinedEventsData[nodeData.data.name] = id;
+            combinedEventsData[nodeDataName]['nodeId'] = id;
+            combinedEventsData[nodeDataName]['posX'] = nodeData.pos_x;
+            combinedEventsData[nodeDataName]['posY'] = nodeData.pos_y;
+            combinedEventsData[nodeDataName] = id;
 
-            mapNodeEventElement[nodeData.data.name] = id;
+            mapNodeEventElement[nodeDataName] = id;
 
             // events have no output
             editor.removeNodeOutput(id, 'output_1');
@@ -670,24 +868,26 @@ OMS Process name: <input type="text" name="processName">
 
         if (nodeData.name === 'transition') {
             // console.log("Node transition created " + id);
-            if (combinedTransitionsData[nodeData.data.name] === undefined) {
-                combinedTransitionsData[nodeData.data.name] = [];
+            if (combinedTransitionsData[nodeDataName] === undefined) {
+                combinedTransitionsData[nodeDataName] = [];
             }
 
-            combinedTransitionsData[nodeData.data.name]['nodeId'] = id;
-            combinedTransitionsData[nodeData.data.name]['posX'] = nodeData.pos_x;
-            combinedTransitionsData[nodeData.data.name]['posY'] = nodeData.pos_y;
-            mapNodeTransitionElement[nodeData.data.name] = id;
+            combinedTransitionsData[nodeDataName]['nodeId'] = id;
+            combinedTransitionsData[nodeDataName]['posX'] = nodeData.pos_x;
+            combinedTransitionsData[nodeDataName]['posY'] = nodeData.pos_y;
+            mapNodeTransitionElement[nodeDataName] = id;
         }
 
         if (nodeData.name === 'condition') {
             // console.log("Node condition created " + id);
-            mapNodeConditionElement[nodeData.data.name] = id;
+            mapNodeConditionElement[nodeDataName] = id;
         }
     })
 
+    let processing = false;
 
     function process() {
+        processing = true;
         editor.clear();
         const options = {
             ignoreAttributes: false,
@@ -740,7 +940,7 @@ OMS Process name: <input type="text" name="processName">
         for (let index = 0; index < combinedEvents.length; index++) {
             const element = combinedEvents[index];
             // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-            // editor.addNode('event', 1, 1, (50 + 250 * index), (800), '', data, htmlEvent);
+            // editor.addNode('event', 1, 1, (50 + 250 * index), (400), '', data, htmlEvent);
             combinedEventsData[element['@_name']] = {
                 "name": element['@_name'],
                 "timeout": (element['@_timeout'] !== undefined) ? element['@_timeout'] : '',
@@ -754,8 +954,6 @@ OMS Process name: <input type="text" name="processName">
             };
         }
 
-        let posX = 1000;
-        let posY = 1000;
         for (let index = 0; index < combinedTransitions.length; index++) {
             const element = combinedTransitions[index];
             let data = {
@@ -767,8 +965,6 @@ OMS Process name: <input type="text" name="processName">
                 "happy": (element['@_happy'] !== undefined) ? element['@_happy'] + '' : 'false',
                 "nodeId": '',
             };
-            // editor.addNode('state', 1, 1, (50 + 250*index), (20 + (270 * index)), '', data, html);
-            // editor.addNode('transition', 1, 1, (50 + 250 * index), (350), '', data, htmlTransition);
 
             // handle missing parts of the available OMS
             if (combinedStatesData[element['source']] === undefined) {
@@ -780,9 +976,9 @@ OMS Process name: <input type="text" name="processName">
                 continue;
             }
 
-
-            if (combinedStatesData[element['source']]['nodeId'] === '') {
-                // editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['source']], htmlState);
+            if (element['@_condition'] !== undefined) {
+                let conditionKey = (element['event'] + '-' + element['source']).replaceAll(' ', '-');
+                combinedConditionsData[conditionKey] = element['@_condition'];
             }
 
             if (combinedStatesData[element['target']]['nodeId'] === '') {
@@ -798,31 +994,12 @@ OMS Process name: <input type="text" name="processName">
                     console.log('Event ' + element['event'] + ' not found')
                 }
 
-                // posY = combinedStatesData[element['source']]['posY'] + 500;
-                // posX = combinedStatesData[element['source']]['posX'];
-                if (mapNodePositions[posX] !== undefined) {
-                    if (mapNodePositions[posX][posY] !== undefined) {
-                        // posX += 400;
-                    }
-                }
-
-                if (combinedStatesData[element['source']]['childrenCount'] > 1) {
-                    //posX += (400 * (combinedStatesData[element['source']]['childrenCount'] - 1));
-                }
-
                 let event = element['event'].replaceAll(' ', '-');
-                // console.log(element['source'], event, combinedStatesData[element['source']]['stateNames'][event])
                 if (combinedStatesData[element['source']]['stateNames'][event] === undefined) {
                     combinedStatesData[element['source']]['stateNames'][event] = [];
                 }
                 combinedStatesData[element['source']]['stateNames'][event].push(element['target']);
-                // console.log(element['source'], event, combinedStatesData[element['source']]['stateNames'][event])
-
-
-                // editor.addNode('state', 1, 1, posX, posY, '', combinedStatesData[element['target']], htmlState);
             }
-
-            // editor.addConnection(combinedStatesData[element['source']]['nodeId'], combinedStatesData[element['target']]['nodeId'], 'output_1', 'input_1');
 
             combinedTransitionsData[data['name']] = data;
         }
@@ -832,7 +1009,8 @@ OMS Process name: <input type="text" name="processName">
 
         // add states to canvas
         for (let [key, state] of Object.entries(combinedStatesData)) {
-            editor.addNode('state', 1, 1, 10, 10, '', state, htmlState);
+            let locHtmlState = htmlState.replaceAll('==content==', state.name);
+            editor.addNode('state', 1, 1, 10, 10, '', state, locHtmlState);
         }
 
         // add transitions to canvas
@@ -844,7 +1022,8 @@ OMS Process name: <input type="text" name="processName">
             for (const [conditionName, relatedStateNames] of Object.entries(state.stateNames)) {
                 if (relatedStateNames.length === 2) {
                     // add condition graph
-                    editor.addNode('condition', 1, 1, 100, 100, '', {name: conditionName}, htmlCondition);
+                    let locHtmlCondition = htmlCondition.replaceAll('==content==', combinedConditionsData[(conditionName + '-' + stateName).replaceAll(' ', '-')])
+                    editor.addNode('condition', 1, 2, 100, 100, 'romb state', {name: conditionName}, locHtmlCondition);
 
                     // add connection between source and condition
                     editor.addConnection(mapNodeStateElement[stateName], mapNodeConditionElement[conditionName], 'output_1', 'input_1');
@@ -853,8 +1032,9 @@ OMS Process name: <input type="text" name="processName">
                         let transitionKey = (conditionName + '-' + stateName + '-' + relatedStateName).replaceAll(' ', '-');
                         console.log(combinedTransitionsData[transitionKey])
 
-                        editor.addConnection(mapNodeConditionElement[conditionName], mapNodeTransitionElement[transitionKey], 'output_1', 'input_1');
-                        editor.addConnection(mapNodeTransitionElement[transitionKey], mapNodeStateElement[relatedStateName], 'output_1', 'input_1');
+                        // editor.addConnection(mapNodeConditionElement[conditionName], mapNodeTransitionElement[transitionKey], 'output_1', 'input_1');
+                        // editor.addConnection(mapNodeTransitionElement[transitionKey], mapNodeStateElement[relatedStateName], 'output_1', 'input_1');
+                        editor.addConnection(mapNodeConditionElement[conditionName], mapNodeStateElement[relatedStateName], 'output_' + (+key2 + 1), 'input_1');
 
                         if (combinedTransitionsData[transitionKey]['happy'] === true) {
                             let label = document.querySelector(".connection.node_in_node-" + mapNodeTransitionElement[transitionKey] + ".node_out_node-" + mapNodeConditionElement[conditionName] + ".output_1.input_1");
@@ -907,6 +1087,7 @@ OMS Process name: <input type="text" name="processName">
                     document.getElementById("node-" + stateElement).style.top = "10px";
                     document.getElementById("node-" + stateElement).style.left = (10 + (500 * counter)) + "px";
                     editor.updateConnectionNodes("node-" + stateElement);
+                    counter++;
                 }
             }
 
@@ -914,50 +1095,31 @@ OMS Process name: <input type="text" name="processName">
                 if (stateName.length === 2) {
                     let conditionElement = mapNodeConditionElement[conditionName];
 
-                    editor.drawflow.drawflow.Home.data[conditionElement].pos_x = editor.drawflow.drawflow.Home.data[stateElement].pos_x + 800;
-                    editor.drawflow.drawflow.Home.data[conditionElement].pos_y = editor.drawflow.drawflow.Home.data[stateElement].pos_y + 400;
-                    document.getElementById("node-" + conditionElement).style.top = (editor.drawflow.drawflow.Home.data[stateElement].pos_y + 400) + "px";
-                    document.getElementById("node-" + conditionElement).style.left = (editor.drawflow.drawflow.Home.data[stateElement].pos_x + 800) + "px";
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_x = editor.drawflow.drawflow.Home.data[stateElement].pos_x + 400;
+                    editor.drawflow.drawflow.Home.data[conditionElement].pos_y = editor.drawflow.drawflow.Home.data[stateElement].pos_y + 200;
+                    document.getElementById("node-" + conditionElement).style.top = (editor.drawflow.drawflow.Home.data[stateElement].pos_y + 200) + "px";
+                    document.getElementById("node-" + conditionElement).style.left = (editor.drawflow.drawflow.Home.data[stateElement].pos_x + 400) + "px";
                     editor.updateConnectionNodes("node-" + conditionElement);
 
-                    let leftTransitionKey = (conditionName + '-' + stateNameKey + '-' + stateName[0]).replaceAll(' ', '-');
-                    console.log(leftTransitionKey)
-                    let leftTransitionElement = mapNodeTransitionElement[leftTransitionKey];
-                    editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250;
-                    editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
-                    document.getElementById("node-" + leftTransitionElement).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
-                    document.getElementById("node-" + leftTransitionElement).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250) + "px";
-                    editor.updateConnectionNodes("node-" + leftTransitionElement);
-                    alreadyPositioned.push(leftTransitionKey);
-
                     let leftOption = mapNodeStateElement[stateName[0]];
-                    editor.drawflow.drawflow.Home.data[leftOption].pos_x = editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x;
-                    editor.drawflow.drawflow.Home.data[leftOption].pos_y = editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y + 500;
-                    document.getElementById("node-" + leftOption).style.top = (editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_y + 500) + "px";
-                    document.getElementById("node-" + leftOption).style.left = (editor.drawflow.drawflow.Home.data[leftTransitionElement].pos_x) + "px";
+                    console.log('positioning', stateName[0])
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250;
+                    editor.drawflow.drawflow.Home.data[leftOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
+                    document.getElementById("node-" + leftOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
+                    document.getElementById("node-" + leftOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x + 250) + "px";
                     editor.updateConnectionNodes("node-" + leftOption);
                     alreadyPositioned.push(stateName[0]);
-
-                    let rightTransitionKey = (conditionName + '-' + stateNameKey + '-' + stateName[1]).replaceAll(' ', '-');
-                    let rightTransitionElement = mapNodeTransitionElement[rightTransitionKey];
-                    editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250;
-                    editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300;
-                    document.getElementById("node-" + rightTransitionElement).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 300) + "px";
-                    document.getElementById("node-" + rightTransitionElement).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x - 250) + "px";
-                    editor.updateConnectionNodes("node-" + rightTransitionElement);
-                    alreadyPositioned.push(rightTransitionKey);
-
                     let rightOption = mapNodeStateElement[stateName[1]];
-                    editor.drawflow.drawflow.Home.data[rightOption].pos_x = editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x;
-                    editor.drawflow.drawflow.Home.data[rightOption].pos_y = editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y + 500;
-                    document.getElementById("node-" + rightOption).style.top = (editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_y + 500) + "px";
-                    document.getElementById("node-" + rightOption).style.left = (editor.drawflow.drawflow.Home.data[rightTransitionElement].pos_x) + "px";
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_x = editor.drawflow.drawflow.Home.data[conditionElement].pos_x;
+                    editor.drawflow.drawflow.Home.data[rightOption].pos_y = editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 500;
+                    document.getElementById("node-" + rightOption).style.top = (editor.drawflow.drawflow.Home.data[conditionElement].pos_y + 500) + "px";
+                    document.getElementById("node-" + rightOption).style.left = (editor.drawflow.drawflow.Home.data[conditionElement].pos_x) + "px";
                     editor.updateConnectionNodes("node-" + rightOption);
                     alreadyPositioned.push(stateName[1]);
                 }
             }
 
-            counter++;
+            // counter++;
         }
 
         for (let [transitionKey, transition] of Object.entries(combinedTransitionsData)) {
@@ -969,32 +1131,23 @@ OMS Process name: <input type="text" name="processName">
             if (mapNodeConnectedThruConditions[transition['source']] === undefined) {
                 console.log('transition linking source', transition['source'], 'placed');
                 console.log('happy', transition['happy'])
-                editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
-                editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+                editor.addConnection(sourceElement, targetElement, 'output_1', 'input_1');
             } else {
                 if (mapNodeConnectedThruConditions[transition['source']]['states'][transition['target']] === undefined) {
                     console.log('transition linking target', transition['target'], 'placed');
-                    editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
-                    editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+                    editor.addConnection(sourceElement, targetElement, 'output_1', 'input_1');
                 } else {
                     if (mapNodeConnectedThruConditions[transition['source']]['transitionKey'].indexOf(transitionKey) === -1) {
                         console.log('transition linking target', transition['target'], 'placed', sourceElement, transitionElement);
-                        editor.addConnection(sourceElement, transitionElement, 'output_1', 'input_1');
-                        editor.addConnection(transitionElement, targetElement, 'output_1', 'input_1');
+                        editor.addConnection(sourceElement, targetElement, 'output_1', 'input_1');
                     }
                 }
             }
-            if (alreadyPositioned.indexOf(transitionKey) === -1) {
-                editor.drawflow.drawflow.Home.data[transitionElement].pos_x = editor.drawflow.drawflow.Home.data[sourceElement].pos_x;
-                editor.drawflow.drawflow.Home.data[transitionElement].pos_y = editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500;
-                document.getElementById("node-" + transitionElement).style.top = (editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500) + "px";
-                document.getElementById("node-" + transitionElement).style.left = (editor.drawflow.drawflow.Home.data[sourceElement].pos_x) + "px";
-                editor.updateConnectionNodes("node-" + transitionElement);
-
-                editor.drawflow.drawflow.Home.data[targetElement].pos_x = editor.drawflow.drawflow.Home.data[transitionElement].pos_x;
-                editor.drawflow.drawflow.Home.data[targetElement].pos_y = editor.drawflow.drawflow.Home.data[transitionElement].pos_y + 500;
-                document.getElementById("node-" + targetElement).style.top = (editor.drawflow.drawflow.Home.data[transitionElement].pos_y + 500) + "px";
-                document.getElementById("node-" + targetElement).style.left = (editor.drawflow.drawflow.Home.data[transitionElement].pos_x) + "px";
+            if (alreadyPositioned.indexOf(transition['target']) === -1) {
+                editor.drawflow.drawflow.Home.data[targetElement].pos_x = editor.drawflow.drawflow.Home.data[sourceElement].pos_x;
+                editor.drawflow.drawflow.Home.data[targetElement].pos_y = editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500;
+                document.getElementById("node-" + targetElement).style.top = (editor.drawflow.drawflow.Home.data[sourceElement].pos_y + 500) + "px";
+                document.getElementById("node-" + targetElement).style.left = (editor.drawflow.drawflow.Home.data[sourceElement].pos_x) + "px";
                 editor.updateConnectionNodes("node-" + targetElement);
             }
         }
@@ -1041,7 +1194,7 @@ OMS Process name: <input type="text" name="processName">
             console.log(transition)
             let transitionElement = mapNodeTransitionElement[transitionKey];
             let eventElement = combinedEventsData[transition.event];
-            editor.addConnection(transitionElement, eventElement, 'output_1', 'input_1');
+            // editor.addConnection(transitionElement, eventElement, 'output_1', 'input_1');
         }
 
         // let label1 = document.querySelector(".connection.node_in_node-2.node_out_node-1.output_1.input_1");
@@ -1062,9 +1215,7 @@ OMS Process name: <input type="text" name="processName">
             bgPath.appendChild(textElem);
         }
 
-
-        // // console.log(mapNodeStateElement);
-        // // console.log(mapNodeEventElement);
+        processing = false;
     }
 
     function exportGraph() {
@@ -1191,14 +1342,119 @@ OMS Process name: <input type="text" name="processName">
         document.getElementById('exportXml').value = new XMLSerializer().serializeToString(xml);
     }
 
+    // MicroModal.init({
+    //     onShow: modal => console.info(`${modal.id} is shown`), // [1]
+    //     onClose: modal => console.info(`${modal.id} is hidden`), // [2]
+    //     // openTrigger: 'data-custom-open', // [3]
+    //     // closeTrigger: 'data-custom-close', // [4]
+    //     openClass: 'is-open', // [5]
+    //     disableScroll: true, // [6]
+    //     disableFocus: false, // [7]
+    //     awaitOpenAnimation: false, // [8]
+    //     awaitCloseAnimation: false, // [9]
+    //     debugMode: true // [10]
+    // });
+    MicroModal.init({
+        onShow: modal => console.info(`${modal.id} is shown`),
+        // onClose: modal => console.info(`${modal.id} is hidden`),
+        debugMode: true
+    });
+
+    let modalStateConfig = {
+        onShow: modalStateShowHandler,
+        onClose: modalStateCloseHandler,
+        debugMode: true
+    };
+
+    function modalStateShowHandler(modal, param1) {
+        document.getElementById('state-name').value = '';
+        document.getElementById('state-reserved').value = '';
+        document.getElementById('state-flag').value = '';
+        document.getElementById('state-display').value = '';
+    }
+
+    function modalStateCloseHandler(modal, param1) {
+        document.getElementById('state-name').value = '';
+        document.getElementById('state-reserved').value = '';
+        document.getElementById('state-flag').value = '';
+        document.getElementById('state-display').value = '';
+        document.getElementById('state-nodeId').value = '';
+    }
+
+    function createOrUpdateStateData() {
+        console.log('createOrUpdateStateData')
+        let id = document.getElementById('state-nodeId').value;
+        let node = editor.getNodeFromId(id);
+        console.log(node.data, node.data.name, combinedStatesData[node.data.name]);
+
+        let originalNodeData = combinedStatesData[node.data.name];
+        if (node.data.name !== document.getElementById('state-name').value) {
+            delete combinedStatesData[node.data.name];
+        }
+
+        console.log(originalNodeData);
+
+        let data = {
+            ...originalNodeData,
+            "name": document.getElementById('state-name').value,
+            "color": '#ebf2eb',
+            "flag": document.getElementById('state-flag').value,
+            "reserved": (document.getElementById('state-reserved').value !== '') ? document.getElementById('state-reserved').value : 'false',
+            "display": document.getElementById('state-display').value,
+            "nodeId": id,
+            "childrenCount": 0,
+            "childrenNames": [],
+            "statesCount": 0,
+            "stateNames": [],
+        };
+
+        combinedStatesData[document.getElementById('state-name').value] = data;
+        editor.updateNodeDataFromId(id, data);
+
+        let locStateHtml = htmlState.replaceAll('==content==', data.name);
+        console.log(locStateHtml)
+        editor.drawflow.drawflow.Home.data[id].html = locStateHtml;
+        document.querySelector('#node-' + id + ' .drawflow_content_node').innerHTML = locStateHtml;
+
+        MicroModal.close('modal-state', modalStateConfig);
+    }
+
 
     // EVENTS
     // Events!
     editor.on('nodeCreated', function (id) {
         console.log("Node created " + id);
+        if (processing === true) {
+            return;
+        }
 
         const node = editor.getNodeFromId(id);
         if (node.name === 'state') {
+
+            MicroModal.show('modal-state', modalStateConfig);
+            console.log('nodeCreated', node.data)
+
+            let data = {
+                "name": '',
+                "color": '#ebf2eb',
+                "flag": '',
+                "reserved": 'false',
+                "display": '',
+                "nodeId": id,
+                "childrenCount": 0,
+                "childrenNames": [],
+                "statesCount": 0,
+                "stateNames": [],
+                'posX': node.pos_x,
+                'posY': node.pos_y,
+            };
+
+            console.log(data);
+
+            combinedStatesData[''] = data;
+            editor.updateNodeDataFromId(id, data);
+
+            document.getElementById('state-nodeId').value = id;
             const check = node.html.includes('select');
             if (check) {
                 const reservedOptions = document.querySelectorAll(`#node-${id} select[name="df-reserved"] option`);
@@ -1208,6 +1464,9 @@ OMS Process name: <input type="text" name="processName">
                     }
                 });
             }
+        }
+        if (node.name === 'condition') {
+            MicroModal.show('modal-condition');
         }
         if (node.name === 'transition') {
             const check = node.html.includes('select');
@@ -1315,11 +1574,7 @@ OMS Process name: <input type="text" name="processName">
 
         if (outputNodeInfo.name === 'state') {
             if (inputNodeInfo.name === 'state') {
-                // a state cannot be linked directly to another atate
-                // TODO: implement some alert/notification
-                const removeConnectionInfo = outputNodeInfo.outputs[connection.output_class].connections.pop();
-                editor.removeSingleConnection(connection.output_id, removeConnectionInfo.node, connection.output_class, removeConnectionInfo.output);
-                return;
+                MicroModal.show('modal-transition');
             }
             if (inputNodeInfo.name === 'transition') {
                 inputNodeInfo.data.source = outputNodeInfo.data.name ?? '';
@@ -1488,7 +1743,7 @@ OMS Process name: <input type="text" name="processName">
                 editor.addNode('state', 1, 1, pos_x, pos_y, '', {}, htmlState);
                 break;
             case 'condition':
-                editor.addNode('condition', 1, 1, pos_x, pos_y, '', {}, htmlCondition);
+                editor.addNode('condition', 1, 2, pos_x, pos_y, 'romb state', {}, htmlCondition);
                 break;
             case 'transition':
                 editor.addNode('transition', 1, 1, pos_x, pos_y, '', {}, htmlTransition);
@@ -1559,14 +1814,19 @@ OMS Process name: <input type="text" name="processName">
     //     }
     // }
 
+    editor.on('clickEnd', function (e) {
+        if (e.detail === 2 && e.target.classList[0] === "main-path") {
+            console.log(editor.connection_selected);
+        }
+    });
 
     // detect click on connector line and get source and target nodes
     var connectionSourceNodeId = -1;
     var connectionTargetNodeId = -1;
     editor.on('click', function (e) {
         if (e.detail === 2 && e.target.classList[0] === "main-path") {
-            // // console.log(editor.connection_selected);
-            // // console.log(e.path[1]);
+            console.log(editor.connection_selected);
+            console.log(e.path[1]);
 
             let nodeArray = e.path[1].getAttribute('class').split(' ');
 
@@ -1582,9 +1842,41 @@ OMS Process name: <input type="text" name="processName">
                 }
             }
 
-            // console.log(connectionSourceNodeId, connectionTargetNodeId);
+            console.log(connectionSourceNodeId, connectionTargetNodeId);
+            MicroModal.show('modal-transition');
+
         }
     });
+
+
+    function showpopup(e) {
+        let nodeId = e.path[2].id.split('-')[1];
+        let nodeData = editor.getNodeFromId(nodeId);
+
+        if (nodeData.name === 'state') {
+            console.log(nodeData.data);
+            MicroModal.show('modal-state', modalStateConfig);
+            document.getElementById('state-name').value = nodeData.data.name;
+            document.getElementById('state-reserved').value = nodeData.data.reserved;
+            document.getElementById('state-flag').value = nodeData.data.flag;
+            document.getElementById('state-display').value = nodeData.data.display;
+            document.getElementById('state-nodeId').value = nodeData.data.nodeId;
+        }
+        if (nodeData.name === 'condition') {
+            MicroModal.show('modal-condition');
+        }
+    }
+
+    function closemodal(e) {
+        e.target.closest(".drawflow-node").style.zIndex = "2";
+        e.target.parentElement.parentElement.style.display = "none";
+        //document.getElementById("modalfix").style.display = "none";
+        editor.precanvas.style.transform = transform;
+        editor.precanvas.style.left = '0px';
+        editor.precanvas.style.top = '0px';
+        editor.editor_mode = "edit";
+    }
+
 </script>
 </body>
 
